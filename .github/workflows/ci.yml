@@ -17,5 +17,5 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run test
-      - run: npm run validate
+      - run: npm run validate:negative
       - run: npm run build

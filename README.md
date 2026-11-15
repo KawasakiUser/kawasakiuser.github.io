@@ -12,6 +12,6 @@ Commands:
     npm run validate
     npm run build
 
-The content layer uses Astro's built-in glob loader. src/lib contains schema, registry, locale, route-history, ARC-anchor, and security checks. Synthetic fixtures are the only records in src/data/public.
+The content layer uses Astro's built-in glob loader. The prebuild validation reads actual JSON under src/data/public/content, src/data/registry.json, src/data/route-history.json, and the approved asset manifest. src/lib contains schema, registry, locale, route-history, ARC-anchor, and security checks. Synthetic fixtures are the only records in src/data/public.
 
 Target root-site contract: https://kawasakiuser.github.io with Astro base /. GitHub Pages publishing is absent from CI.

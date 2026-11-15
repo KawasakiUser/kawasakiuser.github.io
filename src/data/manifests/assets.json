@@ -1,0 +1,9 @@
+[
+{"path":"src/data/public/content/PRJ-0001-en.json","approved":true,"public":true,"mime":"application/json"},
+{"path":"src/data/public/content/PRJ-0001-zh.json","approved":true,"public":true,"mime":"application/json"},
+{"path":"src/data/public/content/ARC-0001-en.json","approved":true,"public":true,"mime":"application/json"},
+{"path":"src/data/public/content/ARC-0002-en.json","approved":true,"public":true,"mime":"application/json"},
+{"path":"src/data/public/content/NOT-0001-en.json","approved":true,"public":true,"mime":"application/json"},
+{"path":"src/data/public/content/COL-0001-en.json","approved":true,"public":true,"mime":"application/json"},
+{"path":"src/data/public/content/LNK-0001-en.json","approved":true,"public":true,"mime":"application/json"}
+]

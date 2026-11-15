@@ -4,17 +4,17 @@ Repository: https://github.com/KawasakiUser/kawasakiuser.github.io
 Owner: KawasakiUser
 Visibility: Public
 Default branch: main
-Remote engineering commit before this evidence update: 2f8be2aa8c8ff03ba4049ea5b59b98671aff45d5
+Latest remote engineering evidence commit: 0be4fb55558aab373a9a07be4b7d76ec2237002e
 
-Foundation CI run 43723937438 completed successfully.
-https://github.com/KawasakiUser/kawasakiuser.github.io/actions/runs/43723937438
+Foundation CI run 43724709017 completed successfully.
+https://github.com/KawasakiUser/kawasakiuser.github.io/actions/runs/43724709017
 
 ## Pages status
 
-The Owner saved GitHub Pages Source as Deploy from a branch with Branch set to None. No new Pages workflow run appeared after that save.
+The Owner saved GitHub Pages Source as Deploy from a branch with Branch set to None.
 
-Historical automatic Pages runs remain in the repository history. One run for the initial empty README commit succeeded. Later runs for the engineering commits failed or were cancelled. This package records those historical events and does not describe them as current deployment.
+GitHub Pages uses a system-managed Actions workflow even when configured for branch publishing. With Branch set to None, there is no publishing branch for the workflow to deploy. The workflow may still appear in Actions history and may fail because no publishing source is selected.
 
-Current status: RESOLVED FOR G6-A FOUNDATION, PAGES SOURCE NONE
+Current status: CONTROLLED OPEN ITEM, PAGES SOURCE NONE
 
-Keep Pages disabled until a separate release gate and explicit Owner approval.
+The Pages workflow is not part of the engineering source tree. Do not disable all repository Actions because Foundation CI must remain available. Keep Branch None until a separate release gate and explicit Owner approval.

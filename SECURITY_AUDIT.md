@@ -1,8 +1,11 @@
-# Security audit
-- Public source is limited to Astro/TypeScript code, synthetic fixtures, CI, README, and MIT license.
-- No handoff/source archives, personal data, real Drafts, Logo, A23, or unapproved images are copied into the source tree.
-- CI declares only contents: read and has no Pages deploy action, pages: write, id-token: write, or production branch publish.
-- assertSafeText rejects javascript:, data:, vbscript:, file:, executable tags, event attributes, imports, and expression-like executable markup.
-- validateAssetManifest rejects non-public/unapproved files and SVG. The approved fixture is a synthetic PNG declaration only.
-- npm run build runs a fail-closed output scan. The scan passed with one noindex foundation page.
-- Browser, GitHub Pages, and production deployment checks were not run before this session because the connected GitHub session was unauthenticated. Repository creation is now complete, while Pages remains deliberately untouched.
+# R1 security audit
+
+- The validator reads actual src/data/public/content JSON, not only in-memory fixtures.
+- Public Draft records fail before build.
+- Every actual public content JSON path must be listed in src/data/manifests/assets.json.
+- Asset paths reject absolute paths, traversal, missing files, unapproved/public false entries, SVG, and unsupported MIME.
+- Registry and content IDs are reconciled in both directions with entity matching.
+- Build output scanning rejects Draft/private markers, executable script markers, and private/draft output paths.
+- scripts/negative-integration.ts exercises orphan project IDs, empty Registry, Draft slug divergence, asset traversal, missing Archive variant, and historical tombstone behavior.
+- CI retains contents: read and has no Pages publishing action.
+- GitHub-managed Pages runs are recorded separately. Current Pages source is owner-reported Branch None. No authored Pages deployment exists.

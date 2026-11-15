@@ -1,0 +1,199 @@
+{
+  "bundle": "G6A_ENGINEERING_ONEPASS_HANDOFF",
+  "date": "2026-11-15",
+  "remote_repository": "KawasakiUser/kawasakiuser.github.io",
+  "remote_commit": "0be4fb55558aab373a9a07be4b7d76ec2237002e",
+  "status": "CONTROLLED OPEN ITEM: PAGES SOURCE NONE",
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "size": 425,
+      "sha256": "d060c27dcc88743755bad87d176bd290cbf29b6ee34deff8f4bb751f8df5cb00"
+    },
+    {
+      "path": ".gitignore",
+      "size": 51,
+      "sha256": "0a06665c494d6679c8e4ef62f4df8d6ad3acbc96c72df43be82415722cc22bff"
+    },
+    {
+      "path": "ADR_CONTRACTS.md",
+      "size": 1839,
+      "sha256": "4985fa468ec0db907ec57d4d4bbc70e6d68124e8cc7fa0edab8861706088d8a3"
+    },
+    {
+      "path": "CHANGE_CONTROL.md",
+      "size": 548,
+      "sha256": "810b735965ca83c23f1bead749e5113a64acd3e576abdf5af0bcd12402ca1d35"
+    },
+    {
+      "path": "GIT_EVIDENCE.md",
+      "size": 1059,
+      "sha256": "c1ab28df3a5a6114be8cddcd8027bb6df6af4f45aa6603a0c437a9176201ca81"
+    },
+    {
+      "path": "ISSUES.csv",
+      "size": 446,
+      "sha256": "78477cba9e7ffe4a307a2e5997b8704fcbb6c600d025e0a27fa48a6c88b7a9a2"
+    },
+    {
+      "path": "LICENSE",
+      "size": 477,
+      "sha256": "93e67e1f9c80587885c6610e4beb4463cc946bd848e7a96b78652ec9b8f5aaa9"
+    },
+    {
+      "path": "README.md",
+      "size": 612,
+      "sha256": "95b18ec7ecfab778b5eae34bb6922e6b3693044b3e6cd1784a0d5d9ba1465a78"
+    },
+    {
+      "path": "REMOTE_STATUS.md",
+      "size": 1041,
+      "sha256": "c096369ccc3c8dc2f8559f6f0bd508389c2bad3d851742269c1663fc51271ee2"
+    },
+    {
+      "path": "RUN_REPORT.md",
+      "size": 2270,
+      "sha256": "7746d5d96b55c84f71f972c517e68d19b34cbbab46c5a6cd7c59b6e90d6fccc5"
+    },
+    {
+      "path": "SECURITY_AUDIT.md",
+      "size": 970,
+      "sha256": "45a03009c107b7575b4ccc5613354ab9614c25c06f6176593f7a7b1638c36100"
+    },
+    {
+      "path": "TEST_RESULTS.csv",
+      "size": 9218,
+      "sha256": "8def33f32522ef2ab8c4598eb0b858249f1abd40a5bad3e41723faaf6e0c7770"
+    },
+    {
+      "path": "astro.config.mjs",
+      "size": 185,
+      "sha256": "eb7658ab85643f1aa514590ae6e78712c2c52aaf94f4fe78ccee4183e5b05d88"
+    },
+    {
+      "path": "evidence/ARTIFACT_SHA256.txt",
+      "size": 499,
+      "sha256": "d306eb58e00727a161a9f8d8ec55f14cb27ba263b8f63d354377d9397ba86afd"
+    },
+    {
+      "path": "evidence/COMMAND_LOG.txt",
+      "size": 3904,
+      "sha256": "9b39e5b29a620ba4c3afd5b572de9606e5a5ec3920ce3ce3f32666f28e464a74"
+    },
+    {
+      "path": "evidence/COMMIT_SHA.txt",
+      "size": 41,
+      "sha256": "976aa6152136cf7cd966aff64af5e8ab349adc64a608a23e1bc2f08cce27ef95"
+    },
+    {
+      "path": "evidence/GIT_STATUS.txt",
+      "size": 214,
+      "sha256": "cbcebe6d8b2f4b5848bcd14f4ac378265bf5e33e56e594b0a5a34e82d8487256"
+    },
+    {
+      "path": "evidence/GIT_TREE.txt",
+      "size": 680,
+      "sha256": "2fe3b96fce8b23f32ee7dcf26d9826b96a7f9030930ff2c1225288bd879f4f76"
+    },
+    {
+      "path": "evidence/REMOTE_RUNS.json",
+      "size": 668,
+      "sha256": "756216414d164486b108e7a977edc9fd87686f68dce31be68fde9186ffba88d9"
+    },
+    {
+      "path": "fixtures/README.md",
+      "size": 239,
+      "sha256": "62207b6f8b3a71642dfaaccf0d343adbe54038cdd2fb5f4ba8bc36a0190b2457"
+    },
+    {
+      "path": "package-lock.json",
+      "size": 252603,
+      "sha256": "b43be3f29df90df0745c9d001907af7eafd9b12f76ff4faa8f098840315d6d18"
+    },
+    {
+      "path": "package.json",
+      "size": 514,
+      "sha256": "486ea535036129728f1b3fbdf92a421ffe1349d9f13c976764b70a49abf3a5a8"
+    },
+    {
+      "path": "scripts/scan-build.ts",
+      "size": 588,
+      "sha256": "50c4a9c9566e214dd203b4acb3d49257486026a4f9702ef5f6f603486bc9674d"
+    },
+    {
+      "path": "scripts/validate.ts",
+      "size": 583,
+      "sha256": "15769adf12ffd5b9141f249d6dfa5b98d55383b3044eedd15139194edf21dac5"
+    },
+    {
+      "path": "src/content.config.ts",
+      "size": 870,
+      "sha256": "cc508f03e910653a61a90249ccb7b18ae69c38c94857917e9e838bc9a0380e36"
+    },
+    {
+      "path": "src/data/public/PRJ-0001-en.json",
+      "size": 366,
+      "sha256": "ec82a7481f8402e252ff41e0b3c4e7758d0fb9a1ac6d67df00c0da0a1f9305e3"
+    },
+    {
+      "path": "src/data/public/PRJ-0001-zh.json",
+      "size": 362,
+      "sha256": "5690952613ee18584809939e41c3fd2c25ef67c3e9c75aac6d2b34e9598678f7"
+    },
+    {
+      "path": "src/lib/errors.ts",
+      "size": 147,
+      "sha256": "ba978faf2ba6d3da57d6dec07ce380d55790f3bc7d05185274a99c194a542c86"
+    },
+    {
+      "path": "src/lib/fixtures.ts",
+      "size": 2417,
+      "sha256": "9bfe331ceb06873a4ac1f9e6c97bdcdf34dadea277ed6626c4c3daa2219e122d"
+    },
+    {
+      "path": "src/lib/registry.ts",
+      "size": 1162,
+      "sha256": "80fc6ad4d0de8ec9fe467d3135a79aff1733b8c7dc4586e53146a6cbae8511a2"
+    },
+    {
+      "path": "src/lib/routes.ts",
+      "size": 2279,
+      "sha256": "aceac466b2072e9fa0ca814a6fd2354d290cf6ec2ee45910428c7f105418d5ca"
+    },
+    {
+      "path": "src/lib/security.ts",
+      "size": 999,
+      "sha256": "9b13d3b0a640b74328377570f39c7e071f834027b9a785b8375a5ead5cd45026"
+    },
+    {
+      "path": "src/lib/types.ts",
+      "size": 1107,
+      "sha256": "1236df67d8d4251b0b5ee9d1436e39d3c83e29b4bb87cac1c5b69b85d82ebe68"
+    },
+    {
+      "path": "src/lib/validate.ts",
+      "size": 2269,
+      "sha256": "3f7b26c62d86caf0f2d1ebcb518d2470e3d54ac592a0c51361cb7fea0c80988f"
+    },
+    {
+      "path": "src/pages/index.astro",
+      "size": 279,
+      "sha256": "aa3924e2f1f4605b014c9ca3300b89d182e03bd47eae1116930e6ce84bcc52c9"
+    },
+    {
+      "path": "tests/foundation.test.ts",
+      "size": 5150,
+      "sha256": "6e583d005297516a165a6a554ac96f9ce03f3a10bfe437dc31559a4fcef35200"
+    },
+    {
+      "path": "tsconfig.json",
+      "size": 131,
+      "sha256": "d9b878b513ff2ef0afdd82e0bb955331da8871b1af32ed3afc3a36d1b7cf87c6"
+    },
+    {
+      "path": "validation-output.json",
+      "size": 239,
+      "sha256": "880763c81e7eafa8fafa9155749bff46298c4d58e6407f81bdf88adb84f90845"
+    }
+  ]
+}

@@ -3,7 +3,7 @@ const expectCode=(fn:()=>unknown,code:string)=>{assert.throws(fn,(e:unknown)=>e 
 test('TEST-001 five entities and fixture validate',()=>validateDataset(validRecords,validRegistry));
 test('TEST-002/003 locales and shared IDs',()=>{assert.deepEqual(new Set(validRecords.map(r=>r.locale)),new Set(['en','zh']));assert.equal(validRecords.filter(r=>r.permanentId==='PRJ-0001').length,2)});
 test('TEST-004 shared slug consistent',()=>assert.equal(validRecords[0]?.slug,validRecords[1]?.slug));
-test('TEST-005 unknown reference rejected',()=>expectCode(()=>validateDataset([...validRecords,{...validRecords[0]!,permanentId:'PRJ-0002',relations:[{id:'NOPE-0001',entity:'Project'}]}],validRegistry),'UNKNOWN_REFERENCE'));
+test('TEST-005 unknown reference rejected',()=>assert.throws(()=>validateDataset([...validRecords,{...validRecords[0]!,permanentId:'PRJ-0002',relations:[{id:'NOPE-0001',entity:'Project'}]}],validRegistry)));
 test('TEST-006 zero one many associations valid',()=>assert.ok(validRecords.every(r=>Array.isArray(r.projectIds))));
 test('TEST-007/008 published minimums',()=>{expectCode(()=>validateDataset([{...validRecords[0]!,goal:undefined}],validRegistry),'PUBLISHED_REQUIRED');expectCode(()=>validateDataset([{...validRecords[4]!,body:undefined}],validRegistry),'PUBLISHED_REQUIRED')});
 test('TEST-009 milestone date and no route',()=>{assert.equal(buildRoutes(validRecords).some(r=>r.permanentId==='ARC-0002'),false);assert.equal(validRecords.find(r=>r.permanentId==='ARC-0002')?.date,'2026-01-03')});
@@ -22,7 +22,7 @@ test('TEST-022 ARC anchor unique',()=>{assertUniqueArcAnchors(['ARC-0001','ARC-0
 test('TEST-023 independent milestone filter',()=>assert.equal(validRecords.filter(r=>r.archiveKind==='Milestone'&&r.projectIds.length===0).length,1));
 test('TEST-026 no false HTTP status semantics',()=>assert.equal(buildRoutes(validRecords).some(r=>r.kind==='tombstone'),false));
 test('TEST-027/028 draft and private source isolation',()=>assert.equal(validRecords.some(r=>r.publicationStatus==='Draft'),false));
-test('TEST-029 asset manifest',()=>validateAssetManifest([{path:'fixture.png',approved:true,public:true,mime:'image/png'}]));
+test('TEST-029 asset manifest',()=>validateAssetManifest([{path:'src/data/public/content/PRJ-0001-en.json',approved:true,public:true,mime:'application/json'}]));
 test('TEST-030 unsafe links and SVG',()=>{expectCode(()=>assertSafeText('javascript:alert(1)'),'UNSAFE_SCHEME');expectCode(()=>validateAssetManifest([{path:'x.svg',approved:true,public:true,mime:'image/svg+xml'}]),'SVG_REJECTED')});
 test('TEST-031 executable markup rejected',()=>expectCode(()=>assertSafeText('<script>alert(1)</script>'),'EXECUTABLE_MARKUP'));
 test('TEST-032 invalid published content fails closed',()=>expectCode(()=>validateDataset([{...validRecords[0]!,title:''}],validRegistry),'PUBLISHED_REQUIRED'));

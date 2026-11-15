@@ -1,0 +1,6 @@
+[
+  {"pages_source":"Deploy from a branch / Branch None","confirmed_by_owner_screenshot":true},
+  {"pages_workflow":"GitHub-managed system workflow; may run without a publishing branch"},
+  {"id":43724709017,"name":"foundation-ci","head_sha":"0be4fb55558aab373a9a07be4b7d76ec2237002e","status":"completed","conclusion":"success","url":"https://github.com/KawasakiUser/kawasakiuser.github.io/actions/runs/43724709017"},
+  {"id":43724708896,"name":"pages build and deployment","head_sha":"0be4fb55558a8c8ff03ba4049ea5b59b98671aff45d5","status":"completed","conclusion":"failure","url":"https://github.com/KawasakiUser/kawasakiuser.github.io/actions/runs/43724708896"}
+]

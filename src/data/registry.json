@@ -1,0 +1,8 @@
+[
+{"permanentId":"PRJ-0001","entity":"Project","state":"Assigned","recordedAt":"2026-01-01"},
+{"permanentId":"ARC-0001","entity":"ArchiveRecord","state":"Assigned","recordedAt":"2026-01-02"},
+{"permanentId":"ARC-0002","entity":"ArchiveRecord","state":"Assigned","recordedAt":"2026-01-03"},
+{"permanentId":"NOT-0001","entity":"Note","state":"Assigned","recordedAt":"2026-01-04"},
+{"permanentId":"COL-0001","entity":"Collaboration","state":"Assigned","recordedAt":"2026-01-05"},
+{"permanentId":"LNK-0001","entity":"Link","state":"Assigned","recordedAt":"2026-01-06"}
+]

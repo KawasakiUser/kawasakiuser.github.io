@@ -1,5 +1,8 @@
 issue_id,priority,status,owner,next_action
-G6-01,P1,CLOSED,Owner/Engineer,Create public repository completed; push bounded source
-G6-02,P1,CLOSED,PCS/Owner,Pages Source is None; keep disabled until the later release gate
-G6-03,P2,DEFERRED,PCS/Content,Resolve future Work type vocabulary and approved Withdrawn copy before production content
-G6-04,P2,DEFERRED,PCS/UI,Run future page design gates and browser accessibility/performance QA
+G6A-R1-P1-01,P1,CLOSED,G6-A engineer,PCS targeted recheck of actual data and Registry reconciliation
+G6A-R1-P1-02,P1,CLOSED,G6-A engineer,PCS targeted recheck of source fallback and Route History manifest
+G6A-R1-P1-03,P1,CLOSED,G6-A engineer,PCS targeted recheck of real-input security pipeline
+G6A-R1-P2-04,P2,CLOSED,G6-A engineer,PCS review of rescore matrix and commit provenance
+G6A-R1-P2-05,P2,CLOSED,G6-A engineer,PCS review of code-only MIT scope
+G6A-R1-OBS-06,P2,CONTROLLED OPEN,PCS/Owner,Keep Pages Branch None until later release gate
+G6A-R1-OLDREPO,P2,EVIDENCE LIMITED,PCS/G6-A engineer,No mutation observed; baseline diff remains outside this batch

@@ -1,3 +1,17 @@
-import {readdirSync,readFileSync,statSync} from 'node:fs'; import {join} from 'node:path'; const forbidden=['private fixture','real Draft','PRIVATE_CONTENT','<script'];
-function files(dir:string):string[]{return readdirSync(dir).flatMap((n:string)=>{const p=join(dir,n);return statSync(p).isDirectory()?files(p):[p]})}
-const paths=files('dist');for(const p of paths){const t=readFileSync(p,'utf8');for(const x of forbidden)if(t.includes(x))throw new Error('Build output contains forbidden token '+x+' in '+p)}console.log('PASS output scan: '+paths.length+' files, no forbidden content');
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+
+const forbidden = ['PRIVATE_CONTENT', 'private fixture', 'real Draft', 'publicationStatus":"Draft"', '<script'];
+function files(dir: string): string[] {
+  return readdirSync(dir).flatMap((name: string) => {
+    const path = join(dir, name);
+    return statSync(path).isDirectory() ? files(path) : [path];
+  });
+}
+const paths = files('dist');
+for (const path of paths) {
+  const text = readFileSync(path, 'utf8');
+  for (const token of forbidden) if (text.includes(token)) throw new Error('Build output contains forbidden token ' + token + ' in ' + path);
+  if (path.includes('private') || path.includes('draft')) throw new Error('Build output contains forbidden path ' + path);
+}
+console.log('PASS output scan: ' + paths.length + ' files, no forbidden content or paths');

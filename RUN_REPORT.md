@@ -1,20 +1,42 @@
-# G6-A one-pass engineering report
+# G6-A R1 correction report
+
 Date: 2026-11-15
-Authorization: PCS-OD-PREG6-01A-02A-20261115
-Scope: Astro/TypeScript foundation, five-entity validation, locale routes, permanent ID Registry, route history, public/private and asset safety, CI, tests.
-## Delivered
-- Astro static foundation with locked package-lock.json.
-- Astro built-in glob loader for public synthetic fixtures.
-- Project, ArchiveRecord Work/Milestone, Note, Collaboration, Link contracts.
-- Independent permanent-ID registry and append-only checks.
-- en root and /zh/ route policy with source fallback, tombstone, Withdrawn, ARC anchor and route-collision checks.
-- Fail-closed unsafe text and asset checks.
-- CI with least-privilege read-only contents permission and no deployment step.
-- No formal production page templates. The only page is a noindex engineering scaffold.
-## Executed evidence
-npm ci, npm run check, npm run test, npm run validate, and npm run build all exited 0. The command log records Node v24.22.1, npm 11.9.0, Astro diagnostics with 0 errors/warnings/hints, 27 passing tests, validation PASS, static build PASS, and output scan PASS.
-The supplied 46-row acceptance matrix is copied into TEST_RESULTS.csv. Foundation-applicable tests are PASSED. Future page, browser, staging, rollback, and release-gate rows remain NOT RUN.
-## Remote repository status
-The public repository was created at https://github.com/KawasakiUser/kawasakiuser.github.io after the Owner reported GitHub login. Source upload is complete at remote commit 2f8be2aa8c8ff03ba4049ea5b59b98671aff45d5. Foundation CI run 43723937438 completed successfully. The Owner saved GitHub Pages Source as Deploy from a branch with Branch set to None. No new Pages workflow run appeared after that save. Historical automatic runs remain recorded in evidence/REMOTE_RUNS.json. Pages is currently kept disabled for G6-A.
-## Explicit non-actions
-No old repository change, A23 change, formal page implementation, real content publication, GitHub Pages deployment, public preview, or production launch occurred.
+Authorization: PCS-G6A-R1-IAR-20261115 under Owner 01A/02A
+Scope: P1 corrections only. No page templates, A23, real content, Logo, or Pages release.
+
+## Corrections completed
+
+- Actual content JSON is the canonical validation input.
+- Permanent Registry reconciliation is bidirectional and entity-aware.
+- Forward references are order independent.
+- Project associations reject dangling IDs and wrong targets.
+- Shared slug/source invariants apply across Draft and Published locale states.
+- sourceLocale drives real fallback for either en or zh.
+- Published ArchiveRecord requires Work or Milestone.
+- Asset path canonicalization and approved manifest checks are enforced.
+- Prebuild validation consumes actual records, ledgers, and assets.
+- Route History generates and persists artifacts/route-manifest.json.
+- Historical published routes become noindex tombstones instead of disappearing.
+- CI runs a negative integration suite before build.
+- MIT license scope and permission notice are complete.
+
+## Evidence
+
+- Node v24.22.1 and npm 11.9.0
+- npm ci passed
+- astro check passed with 0 errors, warnings, or hints
+- 37 automated tests passed, including all 10 PCS R1 negative tests
+- negative integration command passed
+- actual data validation passed for 7 records, 6 Registry entries, and 4 generated routes
+- static build and output scan passed
+- evidence/R1_COMMAND_LOG.txt contains the complete command sequence
+
+## Release boundary
+
+The scaffold remains noindex and contains no formal production pages. GitHub-managed Pages status remains separately controlled with Branch None. No Pages release, A23 change, real content publication, or G6-B work occurred.
+
+## Remaining controlled items
+
+- PCS must independently recheck the R1 commit and CI run.
+- Browser/AT/performance/page-template tests remain future gates.
+- GitHub Pages remains a later release decision.
