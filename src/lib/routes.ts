@@ -50,6 +50,8 @@ export function buildRoutes(records: readonly RecordBase[], history: readonly Ro
       add({ path, permanentId: record.permanentId, locale: record.locale, entity: record.entity, kind: 'page', noindex: false });
     } else if (record.publicationStatus === 'Withdrawn') {
       add({ path, permanentId: record.permanentId, locale: record.locale, entity: record.entity, kind: 'withdrawn', noindex: true });
+    } else if (old?.currentState === 'Withdrawn') {
+      add({ path, permanentId: record.permanentId, locale: record.locale, entity: record.entity, kind: 'withdrawn', noindex: true });
     } else if (record.previouslyPublished || old) {
       add({ path, permanentId: record.permanentId, locale: record.locale, entity: record.entity, kind: 'tombstone', noindex: true });
     }
@@ -72,11 +74,14 @@ export function buildRoutes(records: readonly RecordBase[], history: readonly Ro
   return [...byPath.values()].sort((a, b) => a.path.localeCompare(b.path));
 }
 
-export function resolveLocale(records: readonly RecordBase[], id: string, requested: Locale) {
+export function resolveLocale(records: readonly RecordBase[], id: string, requested: Locale, history: readonly RouteHistory[] = []) {
   const target = records.find((record) => record.permanentId === id && record.locale === requested);
   if (target?.publicationStatus === 'Published') return { kind: 'published' as const, record: target };
   if (target?.publicationStatus === 'Withdrawn') return { kind: 'withdrawn' as const, record: target };
+  const old = history.find((item) => item.permanentId === id && item.locale === requested);
+  if (old?.currentState === 'Withdrawn') return { kind: 'withdrawn' as const, record: target };
   if (target?.previouslyPublished && target.publicationStatus === 'Draft') return { kind: 'tombstone' as const };
+  if (old) return { kind: 'tombstone' as const };
   const sourceLocale = records.find((record) => record.permanentId === id)?.sourceLocale;
   if (!sourceLocale) return { kind: 'missing' as const };
   const source = records.find((record) => record.permanentId === id && record.locale === sourceLocale && record.publicationStatus === 'Published');

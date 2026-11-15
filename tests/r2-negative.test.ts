@@ -53,3 +53,15 @@ test('PCS-R2-ROUTE-06 no implicit reactivation of withdrawn URL', () => {
     firstPublishedAt: '2025-01-01', currentState: 'Withdrawn' as const }];
   expectCode(() => buildRoutes([validRecords[0]!], ledger), 'HISTORY_REACTIVATION');
 });
+
+test('PCS-R2-ROUTE-07 withdrawn historic locale cannot fallback after record removal', () => {
+  const ledger = [{ path: '/zh/projects/foundation-fixture/', permanentId: 'PRJ-0001', locale: 'zh' as const, firstPublishedAt: '2025-01-01', currentState: 'Withdrawn' as const }];
+  const records = validRecords.filter(r => !(r.permanentId === 'PRJ-0001' && r.locale === 'zh'));
+  assert.equal(resolveLocale(records, 'PRJ-0001', 'zh', ledger).kind, 'withdrawn');
+});
+test('PCS-R2-ROUTE-08 Draft with historic Withdrawn retains withdrawn route', () => {
+  const ledger = [{ path: '/zh/projects/foundation-fixture/', permanentId: 'PRJ-0001', locale: 'zh' as const, firstPublishedAt: '2025-01-01', currentState: 'Withdrawn' as const }];
+  const draft = { ...validRecords[1]!, publicationStatus: 'Draft' as const, previouslyPublished: true };
+  const routes = buildRoutes([draft], ledger);
+  assert.equal(routes.find(r => r.path === ledger[0]!.path)?.kind, 'withdrawn');
+});

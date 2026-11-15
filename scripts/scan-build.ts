@@ -26,4 +26,8 @@ if (!html.includes('This scaffold contains no production page content.')) {
 for (const forbidden of ['PRIVATE_CONTENT', 'SECRET_PRIVATE_DRAFT', 'publicationStatus":"Draft', '<script', 'onerror=']) {
   if (html.includes(forbidden)) throw new Error('Build output contains forbidden content: ' + forbidden);
 }
-console.log('PASS strict output allowlist: index.html only, noindex scaffold');
+const visibleText = html.replace(/<!doctype[^>]*>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+if (visibleText !== 'Engineering foundation Engineering foundation This scaffold contains no production page content.') {
+  throw new Error('Unexpected G6-A scaffold visible text: ' + visibleText);
+}
+console.log('PASS strict output allowlist: index.html only, approved visible text, noindex scaffold');
