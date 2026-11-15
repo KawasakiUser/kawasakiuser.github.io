@@ -22,7 +22,7 @@ TEST-020,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Withdrawn Wor
 TEST-021,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Route ledger collision,no duplicate normalized route nor historical replacement conflict,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
 TEST-022,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Typed ARC anchor,"stable #ARC-xxxx, cross-page reuse allowed, per-page DOM duplicate disallowed",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
 TEST-023,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,About independent Milestone filter,"only unassociated Milestones, properly ordered",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
-TEST-024,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Nested path reload,direct URL works on actual Pages config,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-024,Routes & locale,G6-A2 / page / QA as applicable,P1,NOT RUN,Nested path reload,direct URL works on actual Pages config,Future Pages direct-route/browser gate outside 02A foundation scope
 TEST-025,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Site/base config,user root base / or project base path exactly matches chosen repo,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
 TEST-026,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,No false 301/410,Pages compatibility HTML not misrepresented as response status,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
 TEST-027,Security,G6-A2 / page / QA,P0,PASSED,Draft source leak,"no Draft body, assets, metadata, links, sitemap or search indexing in build",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
