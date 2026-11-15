@@ -13,7 +13,8 @@ const registry = readJson<RegistryEvent[]>('src/data/registry.json');
 const history = readJson<RouteHistory[]>('src/data/route-history.json');
 const assets = readJson<{ path: string; approved: boolean; public: boolean; mime: string }[]>('src/data/manifests/assets.json');
 
-validateDataset(records, registry, history);\nmkdirSync('artifacts', { recursive: true });
+validateDataset(records, registry, history);
+mkdirSync('artifacts', { recursive: true });
 validateAssets(assets);
 const routes = buildRoutes(records, history);
 writeFileSync('artifacts/route-manifest.json', JSON.stringify({ generatedFrom: 'src/data/public/content', routes }, null, 2) + '\n');
