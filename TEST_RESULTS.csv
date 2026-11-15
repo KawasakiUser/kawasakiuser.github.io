@@ -1,0 +1,47 @@
+test_id,domain,trigger_gate,priority,status,case,expected_evidence,evidence
+TEST-001,Domain schema,G6-A2 or relevant entity code,P1,PASSED,5 entity contract,"Project, ArchiveRecord Work/Milestone, Note, Collaboration, Link only; Registry not sixth entity",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-002,Domain schema,G6-A2 or relevant entity code,P1,PASSED,Locale key,en root and zh /zh/ only; no internal zh-CN,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-003,Domain schema,G6-A2 or relevant entity code,P1,PASSED,ID/locale uniqueness,"(collection,ID,locale) unique but cross-locale ID intentionally shared",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-004,Domain schema,G6-A2 or relevant entity code,P1,PASSED,Global field consistency,shared slug and global fields across en/zh,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-005,Domain schema,G6-A2 or relevant entity code,P1,PASSED,Reference typing,unknown/wrong-type/duplicate/cycle relations rejected,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-006,Domain schema,G6-A2 or relevant entity code,P1,PASSED,Independent association,"0,1,many Project IDs valid for Notes/Work",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-007,Domain schema,G6-A2 or relevant entity code,P1,PASSED,Project published minimum,goal/title/summary/type/status/id/slug required; started/initial updated optional,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-008,Domain schema,G6-A2 or relevant entity code,P1,PASSED,Note published minimum,required date/category/body and appropriate publish metadata,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-009,Domain schema,G6-A2 or relevant entity code,P1,PASSED,Milestone published minimum,"real date, title, summary; no standalone route",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-010,Domain schema,G6-A2 or relevant entity code,P1,PASSED,Work version and resources,IR-005 global/locale version resources and validity,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-011,Domain schema,G6-A2 or relevant entity code,P1,PASSED,Registry append-only,no reuse; retirement/history; ID race conflicts fail,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-012,Domain schema,G6-A2 or relevant entity code,P1,PASSED,Work type vocabulary,only ADR-07 Owner-confirmed official enum,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-013,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Canonical published locale,"real en/zh page self-canonical, genuine hreflang and eligible sitemap",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-014,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,"Source published, visitor locale Draft",real full source-language fallback on never-published route with noindex and correct lang,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-015,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,"Non-source published, source Draft","no fabricated source page, non-source real route still works",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-016,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Formerly published locale becomes Draft,safe tombstone rather than Draft leak/fallback,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-017,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Optional link REL-01..05,real published locale direct with language label or omission; no fake pages,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-018,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,REL-02 mandatory actual source fallback,test asserts route generation rather than only permission,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-019,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,REL-04 Notes path,explicit /zh/notes/{slug}/ or equivalent route historical case,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-020,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Withdrawn Work,"approved notice, omitted normal archive, retained safe historical URL",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-021,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Route ledger collision,no duplicate normalized route nor historical replacement conflict,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-022,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Typed ARC anchor,"stable #ARC-xxxx, cross-page reuse allowed, per-page DOM duplicate disallowed",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-023,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,About independent Milestone filter,"only unassociated Milestones, properly ordered",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-024,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Nested path reload,direct URL works on actual Pages config,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-025,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,Site/base config,user root base / or project base path exactly matches chosen repo,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-026,Routes & locale,G6-A2 / page / QA as applicable,P1,PASSED,No false 301/410,Pages compatibility HTML not misrepresented as response status,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-027,Security,G6-A2 / page / QA,P0,PASSED,Draft source leak,"no Draft body, assets, metadata, links, sitemap or search indexing in build",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-028,Security,G6-A2 / page / QA,P0,PASSED,Draft public repo audit,no secret or not-public source files committed,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-029,Security,G6-A2 / page / QA,P0,PASSED,Asset manifest,only approved public assets emitted,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-030,Security,G6-A2 / page / QA,P0,PASSED,Unsafe links & embeds,"reject dangerous schemes, untrusted remote embed and SVG",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-031,Security,G6-A2 / page / QA,P0,PASSED,MDX import/expression reject,unapproved executable components blocked before build,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-032,Security,G6-A2 / page / QA,P0,PASSED,Build fail closed,invalid published content blocks build and last good deployment retained,evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-033,UI/Content,Page implementation / R QA,P1,NOT RUN,KaTeX or MathJax comparative fixture,"real renderer tested with Kerr metric, long tensors, references",Future page/release/browser gate outside 02A foundation scope
+TEST-034,UI/Content,Page implementation / R QA,P1,NOT RUN,Rich content accessible,"math alt/readable description, labels, PDF links, captions",Future page/release/browser gate outside 02A foundation scope
+TEST-035,UI/Content,Page implementation / R QA,P1,NOT RUN,Scientific narrow reflow,table/code/math confined overflow without page horizontal scroll,Future page/release/browser gate outside 02A foundation scope
+TEST-036,UI/Content,Page implementation / R QA,P1,NOT RUN,EN/ZH full page,real fonts/word wraps 320/390/820/1440 and 400% zoom,Future page/release/browser gate outside 02A foundation scope
+TEST-037,UI/Content,Page implementation / R QA,P1,NOT RUN,Focus and keyboard,menu skip link focus trapping Escape and language control,Future page/release/browser gate outside 02A foundation scope
+TEST-038,UI/Content,Page implementation / R QA,P1,NOT RUN,Screen reader,"actual semantics, status, withdrawn notices",Future page/release/browser gate outside 02A foundation scope
+TEST-039,UI/Content,Page implementation / R QA,P1,NOT RUN,Gold on Paper accessibility,Gold decorative only when contrast fails for essential text,Future page/release/browser gate outside 02A foundation scope
+TEST-040,UI/Content,Page implementation / R QA,P1,NOT RUN,Reduced-motion,"A23 and any loop pause/stop under preference, no information lost",Future page/release/browser gate outside 02A foundation scope
+TEST-041,UI/Content,Page implementation / R QA,P1,NOT RUN,Content security and release editorial,"Owner published data, locales, licenses, alt and provenance",Future page/release/browser gate outside 02A foundation scope
+TEST-042,Release,G6-A / S / R / L,P1,PASSED,Reproducible build,"version lock npm ci, astro check and build CI",evidence/COMMAND_LOG.txt; tests/foundation.test.ts
+TEST-043,Release,G6-A / S / R / L,P1,NOT RUN,Staging gate,"reviewable environment separated from production, public-data rules respected",Future page/release/browser gate outside 02A foundation scope
+TEST-044,Release,G6-A / S / R / L,P1,NOT RUN,Sitemap/hreflang and robots,only genuinely eligible public records indexed,Future page/release/browser gate outside 02A foundation scope
+TEST-045,Release,G6-A / S / R / L,P1,NOT RUN,Rollback drill,last known good artifact restored in staging and URLs verified,Future page/release/browser gate outside 02A foundation scope
+TEST-046,Release,G6-A / S / R / L,P1,NOT RUN,Owner L publish gate,no production cutover without independent R QA and explicit Owner approval,Future page/release/browser gate outside 02A foundation scope

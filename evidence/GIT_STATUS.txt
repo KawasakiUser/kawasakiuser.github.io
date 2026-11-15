@@ -1,0 +1,2 @@
+ M evidence/COMMIT_SHA.txt
+ M evidence/GIT_STATUS.txt

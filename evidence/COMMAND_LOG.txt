@@ -1,0 +1,104 @@
+$ node --version
+v24.22.1
+$ npm --version
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+11.9.0
+$ npm ci
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+npm warn deprecated tsconfck@3.1.6: unmaintained
+
+added 374 packages in 4s
+$ npm run check
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kawasakiuser-root-site-foundation@0.1.0 check
+> astro check
+
+22:09:24 [content] Syncing content
+22:09:24 [content] Synced content
+22:09:24 [types] Generated 382ms
+22:09:24 [check] Getting diagnostics for Astro files in /workspace/scratch/ca8111d5a3f2/g6a-engineering...
+Result (14 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+
+$ npm run test
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kawasakiuser-root-site-foundation@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+✔ TEST-001 five entities and fixture validate (2.594223ms)
+✔ TEST-002/003 locales and shared IDs (0.765709ms)
+✔ TEST-004 shared slug consistent (0.088704ms)
+✔ TEST-005 unknown reference rejected (0.563525ms)
+✔ TEST-006 zero one many associations valid (0.261232ms)
+✔ TEST-007/008 published minimums (0.325729ms)
+✔ TEST-009 milestone date and no route (0.1666ms)
+✔ TEST-010 work schema ready (0.095683ms)
+✔ TEST-011 registry append-only and race (0.315113ms)
+✔ TEST-012 controlled work vocabulary (0.223325ms)
+✔ TEST-013/025 en root and zh prefix (0.231548ms)
+✔ TEST-014/018 true source fallback (0.219971ms)
+✔ TEST-015 no fabricated source page (0.128222ms)
+✔ TEST-016 formerly published draft tombstone (0.138768ms)
+✔ TEST-017 optional links route-derived (0.09949ms)
+✔ TEST-019 notes route (0.079539ms)
+✔ TEST-020 withdrawn safe route (0.162013ms)
+✔ TEST-021 route collision rejected (0.170576ms)
+✔ TEST-022 ARC anchor unique (0.142003ms)
+✔ TEST-023 independent milestone filter (0.072709ms)
+✔ TEST-026 no false HTTP status semantics (0.068493ms)
+✔ TEST-027/028 draft and private source isolation (0.291718ms)
+✔ TEST-029 asset manifest (0.18625ms)
+✔ TEST-030 unsafe links and SVG (0.186791ms)
+✔ TEST-031 executable markup rejected (0.204787ms)
+✔ TEST-032 invalid published content fails closed (0.119309ms)
+✔ TEST-042 reproducible foundation script (0.055674ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 236.863847
+$ npm run validate
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kawasakiuser-root-site-foundation@0.1.0 validate
+> node --import tsx scripts/validate.ts
+
+PASS validation: 5 entities, registry, locale, routes, security fixtures
+$ npm run build
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kawasakiuser-root-site-foundation@0.1.0 build
+> astro build && npm run scan:build
+
+22:09:27 [content] Syncing content
+22:09:27 [content] Synced content
+22:09:27 [types] Generated 337ms
+22:09:27 [build] output: "static"
+22:09:27 [build] mode: "static"
+22:09:27 [build] directory: /workspace/scratch/ca8111d5a3f2/g6a-engineering/dist/
+22:09:27 [build] Collecting build info...
+22:09:27 [build] ✓ Completed in 346ms.
+22:09:27 [build] Building static entrypoints...
+22:09:28 [vite] ✓ built in 385ms
+22:09:28 [build] ✓ Completed in 414ms.
+
+ generating static routes 
+22:09:28 ▶ src/pages/index.astro
+22:09:28   └─ /index.html (+5ms) 
+22:09:28 ✓ Completed in 10ms.
+
+22:09:28 [build] 1 page(s) built in 775ms
+22:09:28 [build] Complete!
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kawasakiuser-root-site-foundation@0.1.0 scan:build
+> node --import tsx scripts/scan-build.ts
+
+PASS output scan: 1 files, no forbidden content

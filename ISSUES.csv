@@ -1,0 +1,5 @@
+issue_id,priority,status,owner,next_action
+G6-01,P1,CLOSED,Owner/Engineer,Create public repository completed; push bounded source
+G6-02,P2,OPEN,Engineer,Push source and inspect remote Actions/Pages settings without enabling deployment
+G6-03,P2,DEFERRED,PCS/Content,Resolve future Work type vocabulary and approved Withdrawn copy before production content
+G6-04,P2,DEFERRED,PCS/UI,Run future page design gates and browser accessibility/performance QA
