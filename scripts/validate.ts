@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import type { RecordBase, RegistryEvent, RouteHistory } from '../src/lib/types';
 import { validateDataset, validateAssets } from '../src/lib/validate';
 import { buildRoutes } from '../src/lib/routes';
+import { validatePublicSourceGate } from './public-gate';
 
 function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, 'utf8')) as T;
@@ -13,6 +14,7 @@ const registry = readJson<RegistryEvent[]>('src/data/registry.json');
 const history = readJson<RouteHistory[]>('src/data/route-history.json');
 const assets = readJson<{ path: string; approved: boolean; public: boolean; mime: string }[]>('src/data/manifests/assets.json');
 
+validatePublicSourceGate(records, assets);
 validateDataset(records, registry, history);
 mkdirSync('artifacts', { recursive: true });
 validateAssets(assets);

@@ -1,17 +1,29 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { lstatSync, readdirSync, readFileSync } from 'node:fs';
+import { relative, resolve } from 'node:path';
 
-const forbidden = ['PRIVATE_CONTENT', 'private fixture', 'real Draft', 'publicationStatus":"Draft"', '<script'];
-function files(dir: string): string[] {
-  return readdirSync(dir).flatMap((name: string) => {
-    const path = join(dir, name);
-    return statSync(path).isDirectory() ? files(path) : [path];
-  });
+// G6-A is a noindex engineering scaffold. Any additional output needs a
+// separately authorized design/content/release gate and an updated allowlist.
+const dist = resolve('dist');
+const found: string[] = [];
+function visit(path: string): void {
+  const stat = lstatSync(path);
+  if (stat.isSymbolicLink()) throw new Error('Unexpected build-output symlink: ' + path);
+  if (stat.isDirectory()) for (const name of readdirSync(path)) visit(resolve(path, name));
+  else if (stat.isFile()) found.push(relative(dist, path).replace(/\\/g, '/'));
+  else throw new Error('Unsupported build output: ' + path);
 }
-const paths = files('dist');
-for (const path of paths) {
-  const text = readFileSync(path, 'utf8');
-  for (const token of forbidden) if (text.includes(token)) throw new Error('Build output contains forbidden token ' + token + ' in ' + path);
-  if (path.includes('private') || path.includes('draft')) throw new Error('Build output contains forbidden path ' + path);
+visit(dist);
+if (found.length !== 1 || found[0] !== 'index.html') {
+  throw new Error('Unexpected build output paths: ' + found.join(', '));
 }
-console.log('PASS output scan: ' + paths.length + ' files, no forbidden content or paths');
+const html = readFileSync(resolve(dist, 'index.html'), 'utf8');
+if (!/<meta\s+name="robots"\s+content="noindex"\s*\/?\s*>/i.test(html)) {
+  throw new Error('G6-A scaffold must remain noindex');
+}
+if (!html.includes('This scaffold contains no production page content.')) {
+  throw new Error('Unexpected G6-A scaffold content');
+}
+for (const forbidden of ['PRIVATE_CONTENT', 'SECRET_PRIVATE_DRAFT', 'publicationStatus":"Draft', '<script', 'onerror=']) {
+  if (html.includes(forbidden)) throw new Error('Build output contains forbidden content: ' + forbidden);
+}
+console.log('PASS strict output allowlist: index.html only, noindex scaffold');
