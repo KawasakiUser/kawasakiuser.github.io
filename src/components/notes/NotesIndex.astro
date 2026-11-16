@@ -1,0 +1,39 @@
+---
+import type { Locale } from '../../lib/types';
+import type { notesIndex } from '../../lib/science-render/views';
+import NotesFrame from './NotesFrame.astro';
+import { notesCopy } from './copy';
+import './notes.css';
+
+interface Props {
+  locale: Locale;
+  entries: ReturnType<typeof notesIndex>;
+  synthetic?: boolean;
+}
+const { locale, entries, synthetic = true } = Astro.props;
+const labels = notesCopy[locale];
+---
+<NotesFrame locale={locale} title={labels.title} description={labels.intro}>
+  <main id="main" class="notes-surface" tabindex="-1">
+    <div class="notes-index">
+      <header class="notes-index-heading">
+        <h1>{labels.title}</h1>
+        <p>{labels.intro}</p>
+      </header>
+      {entries.length ? (
+        <ul class="notes-index-list" aria-label={labels.title}>
+          {entries.map(({ note, href }) => (
+            <li>
+              <article class="notes-index-entry">
+                <h2><a href={href}>{note.title}</a></h2>
+                <p class="notes-meta"><time datetime={note.date}>{note.date}</time> <span aria-hidden="true">·</span> {note.category}</p>
+                <p>{note.summary}</p>
+                {synthetic && <p class="notes-meta">{labels.synthetic}</p>}
+              </article>
+            </li>
+          ))}
+        </ul>
+      ) : <p class="notes-empty">{labels.empty}</p>}
+    </div>
+  </main>
+</NotesFrame>

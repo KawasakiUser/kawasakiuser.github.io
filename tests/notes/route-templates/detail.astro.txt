@@ -1,0 +1,11 @@
+---
+import NotesDetail from '@ROOT@src/components/notes/NotesDetail.astro';
+import { getNotesPaths, loadNotesCandidate } from '@ROOT@tests/notes/runtime';
+import type { NoteDetail } from '@ROOT@src/lib/science-render/views';
+export const getStaticPaths = () => getNotesPaths('@LOCALE@');
+interface Props { model: NoteDetail }
+const { model } = Astro.props;
+const { getScienceOptions } = loadNotesCandidate();
+const science = model.note ? getScienceOptions(model.note) : undefined;
+---
+<NotesDetail model={model} science={science} />

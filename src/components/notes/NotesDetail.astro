@@ -1,0 +1,64 @@
+---
+import type { Locale } from '../../lib/types';
+import { renderScience, type ScienceOptions } from '../../lib/science-render/render';
+import { notesIndexPath, type NoteDetail } from '../../lib/science-render/views';
+import NotesFrame from './NotesFrame.astro';
+import { notesCopy } from './copy';
+import './notes.css';
+
+interface Props {
+  model: NoteDetail;
+  science?: Omit<ScienceOptions, 'locale'>;
+  synthetic?: boolean;
+}
+const { model, science, synthetic = true } = Astro.props;
+const { locale } = model.route;
+const labels = notesCopy[locale];
+const note = 'note' in model ? model.note : undefined;
+const bodyLocale: Locale = note?.locale ?? locale;
+const articleLabels = notesCopy[bodyLocale];
+const reading = note ? renderScience(note.body, { ...science, locale: bodyLocale }) : undefined;
+const notice = model.state === 'withdrawn' ? labels.withdrawn : labels.tombstone;
+const alternate = model.alternates.find((entry) => entry.locale !== locale);
+const title = note?.title ?? notice;
+const related = model.related ?? [];
+---
+<NotesFrame locale={locale} title={title} titleLocale={bodyLocale} description={model.state === 'page' ? note?.summary : undefined}
+  canonical={model.canonical} alternates={model.alternates}>
+  <main id="main" class="notes-surface" tabindex="-1">
+    <div class="notes-reader">
+      <p class="notes-return"><a href={notesIndexPath(locale)}>{labels.back}</a></p>
+      {model.state === 'source-fallback' && (
+        <aside class="notes-notice">
+          <p>{labels.fallback}</p>
+          <a href={model.canonical}>{labels.source} <span lang={bodyLocale}>({bodyLocale === 'en' ? 'English' : '中文'})</span></a>
+        </aside>
+      )}
+      {note && reading ? (
+        <article lang={bodyLocale}>
+          <header class="notes-article-heading">
+            {synthetic && <p class="notes-meta">{articleLabels.synthetic}</p>}
+            <h1>{note.title}</h1>
+            <p class="notes-standfirst">{note.summary}</p>
+            <p class="notes-meta"><time datetime={note.date}>{note.date}</time> <span aria-hidden="true">·</span> {note.category}</p>
+          </header>
+          {alternate && <p><a href={alternate.path}>{labels.other} <span lang={alternate.locale}>({alternate.locale === 'en' ? 'English' : '中文'})</span></a></p>}
+          {reading.headings.filter(({ depth }) => depth === 2).length >= 3 && (
+            <nav class="notes-toc" aria-label={articleLabels.toc}>
+              <p>{articleLabels.toc}</p>
+              <ul>{reading.headings.filter(({ depth }) => depth === 2).map(({ id, title: heading }) => <li><a href={'#' + id}>{heading}</a></li>)}</ul>
+            </nav>
+          )}
+          {reading.html.includes('class="notes-scroll"') && <p class="notes-meta">{articleLabels.narrow}</p>}
+          <div class="scientific-prose" set:html={reading.html} />
+          {related.length > 0 && (
+            <aside class="notes-related">
+              <h2>{articleLabels.related}</h2>
+              <ul>{related.map((link) => <li><a href={link.href} lang={link.locale}>{link.title}</a></li>)}</ul>
+            </aside>
+          )}
+        </article>
+      ) : <h1>{notice}</h1>}
+    </div>
+  </main>
+</NotesFrame>
