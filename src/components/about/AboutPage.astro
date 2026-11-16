@@ -1,0 +1,157 @@
+---
+import SiteShell from '../shell/SiteShell.astro';
+import type { Locale } from '../../lib/types';
+import MilestoneTimeline from './MilestoneTimeline.astro';
+import type { AboutView } from './page-model';
+
+interface Props {
+  locale: Locale;
+  view: AboutView;
+}
+
+const { locale, view } = Astro.props;
+const t = locale === 'zh' ? {
+  title: '关于', contents: '本页内容', introduction: '个人简介', methods: '工作方法',
+  milestones: '独立里程碑', collaborations: '合作', links: '精选链接', contact: '联系',
+  fixture: '工程示例 · 合成内容'
+} : {
+  title: 'About', contents: 'On this page', introduction: 'An introduction', methods: 'A way of working',
+  milestones: 'Independent milestones', collaborations: 'Collaboration', links: 'Selected links',
+  contact: 'Contact', fixture: 'Engineering sample · Synthetic content'
+};
+
+const visible = {
+  introduction: view.introduction.length > 0,
+  methods: view.methods.length > 0,
+  milestones: view.milestones.length > 0,
+  collaborations: view.collaborations.length > 0,
+  links: view.links.length > 0,
+  contact: Boolean(view.contact)
+};
+const sections = (Object.keys(visible) as Array<keyof typeof visible>).filter((key) => visible[key]);
+---
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>{t.title} | ShiJie Wang</title>
+  </head>
+  <body>
+    <SiteShell locale={locale}>
+      <main id="main" class="about" tabindex="-1">
+        <div class="reading-field">
+          <div class="intro">
+            {sections.length > 0 && <p class="fixture">{t.fixture}</p>}
+            <h1>{t.title}</h1>
+            <p class="identity"><span lang="en">ShiJie Wang</span></p>
+          </div>
+
+          {sections.length > 1 && (
+            <nav class="contents" aria-label={t.contents}>
+              <ul role="list">{sections.map((key) => <li><a href={'#' + key}>{t[key]}</a></li>)}</ul>
+            </nav>
+          )}
+
+          {visible.introduction && (
+            <section id="introduction" tabindex="-1" aria-labelledby="introduction-heading">
+              <h2 id="introduction-heading">{t.introduction}</h2>
+              <div class="intro-copy">{view.introduction.map((paragraph) => <p>{paragraph}</p>)}</div>
+            </section>
+          )}
+
+          {visible.methods && (
+            <section id="methods" tabindex="-1" aria-labelledby="methods-heading">
+              <h2 id="methods-heading">{t.methods}</h2>
+              <div class="method-list">
+                {view.methods.map((method) => (
+                  <div><h3>{method.title}</h3><p>{method.text}</p></div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {visible.milestones && (
+            <section id="milestones" tabindex="-1" aria-labelledby="milestones-heading">
+              <h2 id="milestones-heading">{t.milestones}</h2>
+              <MilestoneTimeline locale={locale} entries={view.milestones} />
+            </section>
+          )}
+
+          {visible.collaborations && (
+            <section id="collaborations" tabindex="-1" aria-labelledby="collaborations-heading">
+              <h2 id="collaborations-heading">{t.collaborations}</h2>
+              <ul class="rows" role="list">
+                {view.collaborations.map((entry) => (
+                  <li>
+                    <h3>{entry.title}</h3>
+                    <p>{entry.summary}</p>
+                    {entry.related.length > 0 && (
+                      <ul>{entry.related.map((link) => <li><a href={link.href}>{link.title}</a></li>)}</ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {visible.links && (
+            <section id="links" tabindex="-1" aria-labelledby="links-heading">
+              <h2 id="links-heading">{t.links}</h2>
+              <ul class="rows" role="list">
+                {view.links.map((link) => (
+                  <li>
+                    <a href={link.href} rel="noreferrer">{link.name}</a>
+                    {link.description && <p>{link.description}</p>}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {visible.contact && (
+            <section id="contact" tabindex="-1" aria-labelledby="contact-heading" class="contact">
+              <h2 id="contact-heading">{t.contact}</h2>
+              <p>{view.contact}</p>
+            </section>
+          )}
+        </div>
+      </main>
+    </SiteShell>
+  </body>
+</html>
+
+<style>
+  .about { background: #fafaf7; color: #111; overflow-wrap: anywhere; line-height: 1.6; }
+  .reading-field { width: min(100%, 78rem); margin-inline: auto; padding-inline: clamp(1rem, 5vw, 3rem); padding-block: clamp(2rem, 6vw, 5.5rem); }
+  .intro { padding-block-end: clamp(1.5rem, 4vw, 4rem); }
+  .fixture { color: #102a43; margin: 0 0 .75rem; font-size: .875rem; }
+  h1, h2, h3 { font-weight: 400; line-height: 1.15; margin: 0; }
+  h1 { font-size: clamp(3rem, 9vw, 7rem); }
+  .identity { font-size: clamp(1.35rem, 3vw, 2.3rem); margin: .65rem 0 0; }
+  h2 { font-size: clamp(1.8rem, 4.5vw, 2.85rem); margin-block-end: clamp(1.1rem, 4vw, 2.6rem); }
+  h3, .rows > li > a { font-size: clamp(1.2rem, 2.2vw, 1.65rem); }
+  p { max-inline-size: 65ch; margin-block: .65rem 0; }
+  .contents, section { border-block-start: 1px solid currentColor; margin-block-end: clamp(1.5rem, 5vw, 5rem); }
+  section { padding-block-start: clamp(1.2rem, 4vw, 3rem); }
+  section:last-child { margin-block-end: 0; }
+  .contents ul, .rows { list-style: none; padding: 0; margin: 0; }
+  .contents ul { display: flex; flex-wrap: wrap; column-gap: clamp(1rem, 4vw, 3rem); padding-block: .7rem; }
+  .contents a { display: inline-block; padding-block: .35rem; }
+  .about :global(a) { color: #102a43; text-decoration-thickness: .08em; text-underline-offset: .18em; }
+  .about :global(a:focus-visible) { outline: 3px solid #102a43; outline-offset: 3px; }
+  .method-list { display: grid; gap: 1.4rem; }
+  .method-list > div, .rows > li { border-block-start: 1px solid currentColor; padding-block: .85rem; }
+  .contact { padding-block-end: 1rem; }
+  @media (min-width: 64rem) {
+    .intro-copy { margin-inline-start: 25%; }
+    .method-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (forced-colors: active) {
+    .about :global(a:focus-visible) { outline: 3px solid Highlight; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .about, .about :global(*) { transition-property: none; }
+  }
+</style>
