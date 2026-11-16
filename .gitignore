@@ -3,3 +3,9 @@ dist/
 .astro/
 validation-output.json
 artifacts/
+# Private authoring data must never be committed into the public foundation repository.
+.env
+.env.*
+private/
+src/private/
+src/data/private/

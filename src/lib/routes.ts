@@ -9,37 +9,79 @@ export function routeFor(record: RecordBase): string | null {
   return prefix + '/' + collection + '/' + record.slug + '/';
 }
 
+const pathKey = (p: string) => p.replace(/\/+$/, '') || '/';
+
 export function buildRoutes(records: readonly RecordBase[], history: readonly RouteHistory[] = []): RouteRecord[] {
-  const output: RouteRecord[] = [];
+  const byPath = new Map<string, RouteRecord>();
+  const historical = new Map<string, RouteHistory>();
+  for (const old of history) {
+    if (!/^\/(?:zh\/)?(?:projects|archive|notes)\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/.test(old.path)) {
+      throw new ValidationError('HISTORY_PATH', 'Invalid historical path: ' + old.path);
+    }
+    if ((old.path.startsWith('/zh/') ? 'zh' : 'en') !== old.locale) {
+      throw new ValidationError('HISTORY_LOCALE', 'Historical locale/path mismatch: ' + old.path);
+    }
+    if (!['Published', 'Tombstone', 'Withdrawn'].includes(old.currentState)) {
+      throw new ValidationError('HISTORY_STATE', 'Unsupported historical state: ' + old.path);
+    }
+    const key = pathKey(old.path);
+    if (historical.has(key)) throw new ValidationError('HISTORY_DUPLICATE', 'Duplicate historical path: ' + old.path);
+    historical.set(key, old);
+  }
+
+  const add = (route: RouteRecord) => {
+    const key = pathKey(route.path);
+    if (byPath.has(key)) throw new ValidationError('ROUTE_COLLISION', 'Duplicate route: ' + route.path);
+    const old = historical.get(key);
+    if (old && (old.permanentId !== route.permanentId || old.locale !== route.locale)) {
+      throw new ValidationError('HISTORY_CONFLICT', 'Historical URL reassigned: ' + route.path);
+    }
+    if (old && old.currentState !== 'Published' && route.kind === 'page') {
+      throw new ValidationError('HISTORY_REACTIVATION', 'Retired historical URL reactivated without approval: ' + route.path);
+    }
+    byPath.set(key, route);
+  };
+
   for (const record of records) {
     const path = routeFor(record);
     if (!path) continue;
-    if (record.publicationStatus === 'Published') output.push({ path, permanentId: record.permanentId, locale: record.locale, entity: record.entity, kind: 'page', noindex: false });
-    else if (record.publicationStatus === 'Withdrawn') output.push({ path, permanentId: record.permanentId, locale: record.locale, entity: record.entity, kind: 'withdrawn', noindex: true });
-    else if (record.previouslyPublished || history.some((item) => item.path === path && item.permanentId === record.permanentId)) {
-      output.push({ path, permanentId: record.permanentId, locale: record.locale, entity: record.entity, kind: 'tombstone', noindex: true });
+    const old = historical.get(pathKey(path));
+    if (record.publicationStatus === 'Published') {
+      add({ path, permanentId: record.permanentId, locale: record.locale, entity: record.entity, kind: 'page', noindex: false });
+    } else if (record.publicationStatus === 'Withdrawn') {
+      add({ path, permanentId: record.permanentId, locale: record.locale, entity: record.entity, kind: 'withdrawn', noindex: true });
+    } else if (old?.currentState === 'Withdrawn') {
+      add({ path, permanentId: record.permanentId, locale: record.locale, entity: record.entity, kind: 'withdrawn', noindex: true });
+    } else if (record.previouslyPublished || old) {
+      add({ path, permanentId: record.permanentId, locale: record.locale, entity: record.entity, kind: 'tombstone', noindex: true });
     }
   }
 
-  const seen = new Set<string>();
-  for (const route of output) {
-    const key = route.path.replace(/\/+$/, '') || '/';
-    if (seen.has(key)) throw new ValidationError('ROUTE_COLLISION', 'Duplicate route: ' + route.path);
-    seen.add(key);
-  }
-
   for (const old of history) {
-    const current = output.find((route) => route.path === old.path);
-    if (current && current.permanentId !== old.permanentId) throw new ValidationError('HISTORY_CONFLICT', 'Historical route replaced: ' + old.path);
-    if (!current && old.currentState === 'Published') throw new ValidationError('HISTORY_DISAPPEARANCE', 'Published historical route disappeared: ' + old.path);
+    const key = pathKey(old.path);
+    if (byPath.has(key)) continue;
+    if (old.currentState === 'Published') {
+      throw new ValidationError('HISTORY_DISAPPEARANCE', 'Published historical URL disappeared: ' + old.path);
+    }
+    const entity = old.permanentId.startsWith('PRJ-') ? 'Project' : old.permanentId.startsWith('NOT-') ? 'Note' : old.permanentId.startsWith('ARC-') ? 'ArchiveRecord' : null;
+    const section = old.path.replace(/^\/zh/, '').split('/')[1];
+    if (!entity || (section === 'projects' && entity !== 'Project') || (section === 'notes' && entity !== 'Note') || (section === 'archive' && entity !== 'ArchiveRecord')) {
+      throw new ValidationError('HISTORY_ENTITY', 'Historical URL entity/section mismatch: ' + old.path);
+    }
+    add({ path: old.path, permanentId: old.permanentId, locale: old.locale, entity,
+      kind: old.currentState === 'Withdrawn' ? 'withdrawn' : 'tombstone', noindex: true });
   }
-  return output;
+  return [...byPath.values()].sort((a, b) => a.path.localeCompare(b.path));
 }
 
-export function resolveLocale(records: readonly RecordBase[], id: string, requested: Locale) {
+export function resolveLocale(records: readonly RecordBase[], id: string, requested: Locale, history: readonly RouteHistory[] = []) {
   const target = records.find((record) => record.permanentId === id && record.locale === requested);
   if (target?.publicationStatus === 'Published') return { kind: 'published' as const, record: target };
+  if (target?.publicationStatus === 'Withdrawn') return { kind: 'withdrawn' as const, record: target };
+  const old = history.find((item) => item.permanentId === id && item.locale === requested);
+  if (old?.currentState === 'Withdrawn') return { kind: 'withdrawn' as const, record: target };
   if (target?.previouslyPublished && target.publicationStatus === 'Draft') return { kind: 'tombstone' as const };
+  if (old) return { kind: 'tombstone' as const };
   const sourceLocale = records.find((record) => record.permanentId === id)?.sourceLocale;
   if (!sourceLocale) return { kind: 'missing' as const };
   const source = records.find((record) => record.permanentId === id && record.locale === sourceLocale && record.publicationStatus === 'Published');

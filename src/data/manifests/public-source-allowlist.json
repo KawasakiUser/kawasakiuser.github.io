@@ -1,0 +1,34 @@
+{
+  "scope": "G6-A-02A-SYNTHETIC-ONLY",
+  "status": "reviewed foundation fixture inventory; not authorization for real content",
+  "files": [
+    {
+      "path": "src/data/public/content/ARC-0001-en.json",
+      "sha256": "6402713370c513b54acd869e3820cadbd8d90e77c030098002d44cc38ba11757"
+    },
+    {
+      "path": "src/data/public/content/ARC-0002-en.json",
+      "sha256": "64d6518de228d2633dc7c03c7b6b9f5b44db870bbfe994d5a705340b2d86304f"
+    },
+    {
+      "path": "src/data/public/content/COL-0001-en.json",
+      "sha256": "a05d9bb3d823081f327a7a129c9ade0b70f1a5cd81dfacdafb5309a26864aaff"
+    },
+    {
+      "path": "src/data/public/content/LNK-0001-en.json",
+      "sha256": "66cafcb638acae21fc82305fc64bc6b0f7e93e3ace7856582251f895f014659b"
+    },
+    {
+      "path": "src/data/public/content/NOT-0001-en.json",
+      "sha256": "5f4056abb6b8a648c2be7b8bfbc2239986562693398e216e3ef6ef96f8b150ec"
+    },
+    {
+      "path": "src/data/public/content/PRJ-0001-en.json",
+      "sha256": "ec82a7481f8402e252ff41e0b3c4e7758d0fb9a1ac6d67df00c0da0a1f9305e3"
+    },
+    {
+      "path": "src/data/public/content/PRJ-0001-zh.json",
+      "sha256": "5690952613ee18584809939e41c3fd2c25ef67c3e9c75aac6d2b34e9598678f7"
+    }
+  ]
+}
