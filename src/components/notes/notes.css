@@ -63,5 +63,5 @@
 .scientific-prose caption { text-align: start; margin-block-end: .4rem; }
 @media (forced-colors: active) {
   .notes-surface a { color: LinkText; }
-  .notes-surface :focus-visible { outline-color: Highlight; }
+  .notes-surface :focus-visible { outline: 2px solid Highlight; }
 }

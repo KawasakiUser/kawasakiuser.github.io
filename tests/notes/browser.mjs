@@ -128,6 +128,7 @@ try {
       assert.equal(await region.evaluate((el) => el === document.activeElement), false);
       await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
       await page.keyboard.press('Shift+Tab');
+      await new Promise((done) => setTimeout(done, 100));
       const focus = await region.evaluate((el) => ({
         forced: matchMedia('(forced-colors: active)').matches,
         active: document.activeElement === el,
