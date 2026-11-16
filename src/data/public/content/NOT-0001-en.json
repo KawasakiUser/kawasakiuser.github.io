@@ -1,1 +1,1 @@
-{"entity":"Note","permanentId":"NOT-0001","locale":"en","slug":"note-fixture","publicationStatus":"Published","title":"Note Fixture","sourceLocale":"en","date":"2026-01-04","category":"Methods","body":"Synthetic note.","projectIds":["PRJ-0001"],"publishedAt":"2026-01-04"}
+{"entity":"Note","permanentId":"NOT-0001","locale":"en","slug":"note-fixture","publicationStatus":"Published","title":"Note Fixture","sourceLocale":"en","date":"2026-01-04","category":"Methods","body":"Synthetic note.","projectIds":["PRJ-0001"],"publishedAt":"2026-01-04","summary":"Synthetic note summary."}

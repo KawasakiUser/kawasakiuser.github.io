@@ -4,7 +4,8 @@ import { resolve, sep } from 'node:path';
 import type { Locale, RecordBase, RegistryEvent, RouteHistory, RouteRecord } from './types';
 import { ValidationError } from './errors';
 import { currentRegistry, prefixMatchesEntity } from './registry';
-import { buildRoutes, routeFor, resolveLocale } from './routes';
+import { assertPinnedLegacyFixture } from './legacy-fixtures';
+import { buildRoutes, isWithdrawnWork, routeFor, resolveLocale } from './routes';
 
 export interface CanonicalRecord extends RecordBase {
   canonicalId: string;
@@ -27,10 +28,30 @@ export interface RouteManifestEntry extends RouteRecord {
 
 export interface OutputManifest {
   generatedFrom: string;
+  scopeId: string;
+  approvedRoutes: readonly string[];
   allowedFiles: readonly string[];
   homeRoutes: readonly string[];
   routeStates: readonly Pick<RouteManifestEntry, 'path' | 'state' | 'noindex'>[];
 }
+
+export interface OutputRouteApproval {
+  route: string;
+  outputFiles: readonly string[];
+}
+
+export interface OutputScope {
+  scopeId: string;
+  approvedRoutes: readonly OutputRouteApproval[];
+}
+
+export const SHELL_OUTPUT_SCOPE: OutputScope = Object.freeze({
+  scopeId: 'G6B-SHELL-HOME',
+  approvedRoutes: Object.freeze([
+    Object.freeze({ route: '/', outputFiles: Object.freeze(['index.html']) }),
+    Object.freeze({ route: '/zh/', outputFiles: Object.freeze(['zh/index.html']) })
+  ])
+});
 
 export interface AssetDeclaration {
   path: string;
@@ -45,15 +66,16 @@ export interface ApprovedSource {
 }
 
 export function adaptRecord(record: RecordBase): CanonicalRecord {
-  if (!prefixMatchesEntity(record.entity, record.permanentId)) {
+  const isLegacy = record.entity === 'Note' && record.permanentId.startsWith('NOT-');
+  if (isLegacy) assertPinnedLegacyFixture(record);
+  if (!prefixMatchesEntity(record.entity, record.permanentId, isLegacy)) {
     throw new ValidationError('ID_TYPE', 'Wrong ID prefix for ' + record.entity + ': ' + record.permanentId);
   }
-  const legacyFixture = record.entity === 'Note' && record.permanentId.startsWith('NOT-');
   return {
     ...record,
     canonicalId: record.permanentId,
     globalKey: record.permanentId + ':' + record.slug,
-    legacyFixture
+    legacyFixture: isLegacy
   };
 }
 
@@ -149,7 +171,7 @@ export function getSafeRelatedLinks(record: RecordBase, records: readonly Record
   const links: Array<{ id: string; href: string; locale: Locale }> = [];
   const ids = [...record.projectIds, ...(record.relations ?? []).map((relation) => relation.id)];
   for (const id of ids) {
-    const target = records.find((candidate) => candidate.permanentId === id && candidate.locale === record.locale && candidate.publicationStatus === 'Published');
+    const target = records.find((candidate) => candidate.permanentId === id && candidate.locale === record.locale && candidate.publicationStatus === 'Published' && !isWithdrawnWork(candidate));
     if (!target) continue;
     const href = routeFor(target);
     if (href) links.push({ id, href, locale: target.locale });
@@ -158,14 +180,55 @@ export function getSafeRelatedLinks(record: RecordBase, records: readonly Record
 }
 
 export function getPublicationView(records: readonly RecordBase[], locale: Locale): CanonicalRecord[] {
-  return getCanonicalEntities(records.filter((record) => record.locale === locale && record.publicationStatus === 'Published'));
+  return getCanonicalEntities(records.filter((record) => record.locale === locale && record.publicationStatus === 'Published' && !isWithdrawnWork(record)));
 }
 
-export function getOutputManifest(routeManifest: readonly RouteManifestEntry[]): OutputManifest {
-  return {
-    generatedFrom: 'canonical-route-manifest + authorized shell home routes',
-    allowedFiles: ['index.html', 'zh/index.html'],
-    homeRoutes: ['/', '/zh/'],
+function assertOutputPath(path: string): void {
+  if (!path || path.startsWith('/') || path.includes('..') || path.includes('\\') || path.split('/').some((part) => !part || part === '.' || part === '..')) {
+    throw new ValidationError('OUTPUT_PATH', 'Output path is not canonical: ' + path);
+  }
+}
+
+export function assertOutputRouteApproved(route: string, scope: OutputScope): void {
+  if (!scope.approvedRoutes.some((approval) => approval.route === route)) {
+    throw new ValidationError('OUTPUT_ROUTE_UNAUTHORIZED', 'Output route is outside the approved scope: ' + route);
+  }
+}
+
+export function validateOutputManifest(manifest: OutputManifest): void {
+  if (!manifest.scopeId || !Array.isArray(manifest.approvedRoutes) || !Array.isArray(manifest.allowedFiles)) {
+    throw new ValidationError('OUTPUT_MANIFEST', 'Output manifest is incomplete');
+  }
+  const files = new Set<string>();
+  for (const file of manifest.allowedFiles) {
+    assertOutputPath(file);
+    if (files.has(file)) throw new ValidationError('OUTPUT_MANIFEST', 'Output manifest repeats a file: ' + file);
+    files.add(file);
+  }
+}
+
+export function getOutputManifest(routeManifest: readonly RouteManifestEntry[], scope: OutputScope = SHELL_OUTPUT_SCOPE): OutputManifest {
+  if (!scope.scopeId || !scope.approvedRoutes.length) throw new ValidationError('OUTPUT_SCOPE', 'Output scope must declare an identity and at least one route');
+  const routes = new Set<string>();
+  const files = new Set<string>();
+  for (const approval of scope.approvedRoutes) {
+    if (routes.has(approval.route)) throw new ValidationError('OUTPUT_SCOPE', 'Output scope repeats a route: ' + approval.route);
+    routes.add(approval.route);
+    if (!approval.outputFiles.length) throw new ValidationError('OUTPUT_SCOPE', 'Approved output route has no files: ' + approval.route);
+    for (const file of approval.outputFiles) {
+      assertOutputPath(file);
+      if (files.has(file)) throw new ValidationError('OUTPUT_SCOPE', 'Output file is assigned more than once: ' + file);
+      files.add(file);
+    }
+  }
+  const manifest: OutputManifest = {
+    generatedFrom: 'canonical-route-manifest + approved output scope',
+    scopeId: scope.scopeId,
+    approvedRoutes: [...routes],
+    allowedFiles: [...files],
+    homeRoutes: [...routes].filter((route) => route === '/' || route === '/zh/'),
     routeStates: routeManifest.map(({ path, state, noindex }) => ({ path, state, noindex }))
   };
+  validateOutputManifest(manifest);
+  return manifest;
 }

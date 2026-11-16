@@ -25,6 +25,16 @@ const records = defineCollection({
     publishedAt: z.string().optional(),
     previouslyPublished: z.boolean().optional(),
     withdrawnNotice: z.string().optional()
+  }).superRefine((record, context) => {
+    if (record.publicationStatus === 'Published' && record.entity === 'Note' && !record.summary) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['summary'], message: 'Published Note requires summary' });
+    }
+    if (record.entity === 'ArchiveRecord' && !record.validityStatus) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['validityStatus'], message: 'ArchiveRecord requires validityStatus' });
+    }
+    if (record.entity === 'ArchiveRecord' && record.validityStatus === 'Withdrawn' && !record.withdrawnNotice) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['withdrawnNotice'], message: 'Withdrawn Work requires withdrawnNotice' });
+    }
   })
 });
 export const collections = { records };

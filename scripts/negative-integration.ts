@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -21,6 +22,19 @@ function run(dir: string, command: string): CommandResult {
   const p = spawnSync('npm', ['run', command], { cwd: dir, encoding: 'utf8', timeout: 120000 });
   if (p.error) throw p.error;
   return { status: p.status, text: (p.stdout ?? '') + '\n' + (p.stderr ?? '') };
+}
+function updateAllowlist(dir: string, path: string): void {
+  const allowlistPath = join(dir, 'src/data/manifests/public-source-allowlist.json');
+  const allowlist = JSON.parse(readFileSync(allowlistPath, 'utf8')) as { files: Array<{ path: string; sha256: string }> };
+  const digest = createHash('sha256').update(readFileSync(join(dir, path))).digest('hex');
+  const entry = allowlist.files.find((item) => item.path === path);
+  if (entry) entry.sha256 = digest;
+  else allowlist.files.push({ path, sha256: digest });
+  writeFileSync(allowlistPath, JSON.stringify(allowlist, null, 2));
+  const assetsPath = join(dir, 'src/data/manifests/assets.json');
+  const assets = JSON.parse(readFileSync(assetsPath, 'utf8')) as Array<{ path: string; approved: boolean; public: boolean; mime: string }>;
+  if (!assets.some((item) => item.path === path)) assets.push({ path, approved: true, public: true, mime: 'application/json' });
+  writeFileSync(assetsPath, JSON.stringify(assets, null, 2));
 }
 function caseRun(label: string, inject: (dir: string) => void, expected: string): void {
   const dir = prepare();
@@ -87,6 +101,38 @@ caseRun('SEC-06 unlisted public asset', (dir) => {
   mkdirSync(join(dir, 'public'), { recursive: true });
   writeFileSync(join(dir, 'public/rogue.txt'), 'unreviewed asset');
 }, 'UNLISTED_PUBLIC_FILE');
+caseRun('P1-01 unregistered NOT Note ID', (dir) => {
+  const path = 'src/data/public/content/NOT-9999-en.json';
+  writeFileSync(join(dir, path), JSON.stringify({ entity: 'Note', permanentId: 'NOT-9999', locale: 'en', slug: 'unregistered-note', publicationStatus: 'Published', title: 'Synthetic note', summary: 'Synthetic summary', sourceLocale: 'en', date: '2026-01-10', category: 'Methods', body: 'Synthetic body', projectIds: [], publishedAt: '2026-01-10' }));
+  updateAllowlist(dir, path);
+  const registryPath = join(dir, 'src/data/registry.json');
+  const registry = JSON.parse(readFileSync(registryPath, 'utf8')) as unknown[];
+  registry.push({ permanentId: 'NOT-9999', entity: 'Note', state: 'Assigned', recordedAt: '2026-01-10' });
+  writeFileSync(registryPath, JSON.stringify(registry));
+}, 'LEGACY_ID_UNREGISTERED');
+caseRun('P1-02 Published NTE Note missing summary', (dir) => {
+  const path = 'src/data/public/content/NTE-0002-en.json';
+  writeFileSync(join(dir, path), JSON.stringify({ entity: 'Note', permanentId: 'NTE-0002', locale: 'en', slug: 'missing-summary', publicationStatus: 'Published', title: 'Synthetic note', sourceLocale: 'en', date: '2026-01-11', category: 'Methods', body: 'Synthetic body', projectIds: [], publishedAt: '2026-01-11' }));
+  updateAllowlist(dir, path);
+  const registryPath = join(dir, 'src/data/registry.json');
+  const registry = JSON.parse(readFileSync(registryPath, 'utf8')) as unknown[];
+  registry.push({ permanentId: 'NTE-0002', entity: 'Note', state: 'Assigned', recordedAt: '2026-01-11' });
+  writeFileSync(registryPath, JSON.stringify(registry));
+}, 'PUBLISHED_REQUIRED');
+caseRun('P1-03 global Project facts differ', (dir) => {
+  const path = 'src/data/public/content/PRJ-0001-zh.json';
+  const record = JSON.parse(readFileSync(join(dir, path), 'utf8')) as Record<string, unknown>;
+  record.primaryType = 'Different';
+  writeFileSync(join(dir, path), JSON.stringify(record));
+  updateAllowlist(dir, path);
+}, 'GLOBAL_FACTS');
+caseRun('P1-03 withdrawn Work needs notice', (dir) => {
+  const path = 'src/data/public/content/ARC-0001-en.json';
+  const record = JSON.parse(readFileSync(join(dir, path), 'utf8')) as Record<string, unknown>;
+  record.validityStatus = 'Withdrawn';
+  writeFileSync(join(dir, path), JSON.stringify(record));
+  updateAllowlist(dir, path);
+}, 'WITHDRAWN_NOTICE');
 buildOnlyCase('SEC-07 extra static page', (dir) => {
   mkdirSync(join(dir, 'src/pages/rogue'), { recursive: true });
   writeFileSync(join(dir, 'src/pages/rogue/index.astro'), '<html><body>rogue</body></html>');

@@ -47,7 +47,7 @@ const copy = isZh
       aboutCta: 'About me →'
     };
 ---
-<SiteShell locale={locale}>
+<SiteShell locale={locale} notesHref={notes.length > 0 ? (isZh ? '/zh/#notes' : '/#notes') : null}>
   <main id="main">
     <section id="cover" class="home-section cover-section" aria-labelledby="cover-heading">
       <div class="cover-slot" aria-label={copy.cover}>
@@ -110,6 +110,7 @@ const copy = isZh
   .projects-section { background: #eadac2; }
   .archive-section { background: #f4efe6; }
   .notes-section { background: #182a3d; color: #fafaf7; }
+  .notes-section .section-number { color: #fafaf7; }
   .about-section { background: #f7f4ed; }
   .project-list, .archive-list, .notes-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1.25rem; }
   .record-card { min-height: 12rem; padding: 1.45rem; border: 1px solid currentColor; }

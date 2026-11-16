@@ -1,9 +1,10 @@
 import { lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
-import type { OutputManifest } from '../src/lib/canonical';
+import { validateOutputManifest, type OutputManifest } from '../src/lib/canonical';
 
 const dist = resolve('dist');
 const manifest = JSON.parse(readFileSync(resolve('artifacts/output-manifest.json'), 'utf8')) as OutputManifest;
+validateOutputManifest(manifest);
 const found: string[] = [];
 function visit(path: string): void {
   const stat = lstatSync(path);

@@ -1,4 +1,4 @@
-# G6B Shared Integration API
+# G6B Shared Integration API — Contract v1.0
 
 This branch owns the shared domain adapter consumed by the Home shell and the future page-family branches. The adapter accepts the actual JSON content directory, `src/data/registry.json`, and `src/data/route-history.json` at validation/build time.
 
@@ -11,7 +11,9 @@ getRouteManifest(records, history): RouteManifestEntry[]
 getSafeRelatedLinks(record, records): { id, href, locale }[]
 getPublicationView(records, locale): CanonicalRecord[]
 assertApprovedAsset(asset, approvedSources): void
-getOutputManifest(routeManifest): OutputManifest
+getOutputManifest(routeManifest, scope?): OutputManifest
+assertOutputRouteApproved(route, scope): void
+validateOutputManifest(manifest): void
 ```
 
 `CanonicalRecord` retains the original permanent ID and adds `canonicalId`, `globalKey`, and an explicit `legacyFixture` marker. The inherited synthetic `NOT-####` Note fixture is accepted only as a legacy fixture. New canonical Note IDs use `NTE-####`.
@@ -20,7 +22,7 @@ The adapter preserves separate state axes. Locale publication uses `Draft | Publ
 
 `getSafeRelatedLinks` resolves only a truly Published target in the requested locale. It omits unpublished, withdrawn, and unresolved targets. `getPublicationView` is the only page-facing publication filter and never returns Draft or Withdrawn records.
 
-`getOutputManifest` is generated before the Astro build. The Shell scope authorizes exactly `index.html` and `zh/index.html`. `scripts/scan-build.ts` compares the complete `dist` tree against this manifest and rejects extra paths, symlinks, executable markup, and private/draft markers.
+`getOutputManifest` accepts an explicit `OutputScope`. The Shell scope authorizes exactly `index.html` and `zh/index.html`. Future page teams add exact route/output pairs through a PCS-approved scope. `scripts/scan-build.ts` compares the complete `dist` tree against this manifest and rejects extra paths, symlinks, executable markup, and private/draft markers.
 
 ## Consumer rules
 

@@ -34,6 +34,17 @@ export interface RecordBase {
   body?: string;
 }
 
+export interface PublishedNoteRecord extends RecordBase {
+  entity: 'Note';
+  publicationStatus: 'Published';
+  summary: string;
+}
+
+export interface CanonicalWorkRecord extends RecordBase {
+  entity: 'ArchiveRecord';
+  validityStatus: WorkValidityStatus;
+}
+
 export interface RegistryEvent {
   permanentId: string;
   entity: Entity;

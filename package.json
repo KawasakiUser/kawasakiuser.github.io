@@ -14,6 +14,7 @@
     "scan:build": "node --import tsx scripts/scan-build.ts",
     "build": "astro build && npm run scan:build",
     "validate:negative": "node --import tsx scripts/negative-integration.ts",
+    "verify:delivery": "node --import tsx scripts/verify-delivery-manifest.ts",
     "prebuild": "npm run validate"
   },
   "dependencies": {

@@ -4,11 +4,11 @@
   "files": [
     {
       "path": "src/data/public/content/ARC-0001-en.json",
-      "sha256": "6402713370c513b54acd869e3820cadbd8d90e77c030098002d44cc38ba11757"
+      "sha256": "0e008fe31dc7e9257dcb39f814bc142b91a740a651250d95d661f9e03d6d9d48"
     },
     {
       "path": "src/data/public/content/ARC-0002-en.json",
-      "sha256": "64d6518de228d2633dc7c03c7b6b9f5b44db870bbfe994d5a705340b2d86304f"
+      "sha256": "fbc8808c12f68a3c664ccd2cc59e489e211f914e3d49bd3857421f35636cddf9"
     },
     {
       "path": "src/data/public/content/COL-0001-en.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "src/data/public/content/NOT-0001-en.json",
-      "sha256": "5f4056abb6b8a648c2be7b8bfbc2239986562693398e216e3ef6ef96f8b150ec"
+      "sha256": "3bd9f70dc751b641d58da178b5a6014f66bd47cd5757aa135ea088a109d897ed"
     },
     {
       "path": "src/data/public/content/PRJ-0001-en.json",

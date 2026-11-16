@@ -1,8 +1,9 @@
 ---
 interface Props {
   locale: 'en' | 'zh';
+  notesHref?: string | null;
 }
-const { locale } = Astro.props;
+const { locale, notesHref = null } = Astro.props;
 const isZh = locale === 'zh';
 const labels = isZh
   ? { skip: '跳到主要内容', nav: '主导航', home: '首页', projects: '项目', archive: '档案', notes: '笔记', about: '关于', switch: 'English', switchHref: '/', footer: '页脚导航' }
@@ -14,7 +15,7 @@ const labels = isZh
   <nav aria-label={labels.nav}>
     <a href={isZh ? '/zh/#projects' : '/#projects'}>{labels.projects}</a>
     <a href={isZh ? '/zh/#archive' : '/#archive'}>{labels.archive}</a>
-    <a href={isZh ? '/zh/#notes' : '/#notes'}>{labels.notes}</a>
+    {notesHref ? <a href={notesHref}>{labels.notes}</a> : <span class="nav-pending" aria-disabled="true">{labels.notes}</span>}
     <a href={isZh ? '/zh/#about' : '/#about'}>{labels.about}</a>
     <a class="locale-switch" href={labels.switchHref} lang={isZh ? 'en' : 'zh'}>{labels.switch}</a>
   </nav>
@@ -39,6 +40,7 @@ const labels = isZh
   .site-header nav, .site-footer nav { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem 1.35rem; font-size: .95rem; }
   .site-header nav a, .site-footer nav a { text-decoration: none; }
   .site-header nav a:hover, .site-header nav a:focus-visible, .site-footer nav a:hover, .site-footer nav a:focus-visible { text-decoration: underline; text-underline-offset: .2em; }
+  .nav-pending { color: #625b52; }
   .locale-switch { border-left: 1px solid rgba(32,32,30,.35); padding-left: 1.35rem; }
   .site-footer { display: flex; justify-content: flex-end; padding: 2rem clamp(1.2rem, 5vw, 5.5rem); border-top: 1px solid rgba(32,32,30,.2); }
   :global(:focus-visible) { outline: 3px solid #182a3d; outline-offset: 3px; }
