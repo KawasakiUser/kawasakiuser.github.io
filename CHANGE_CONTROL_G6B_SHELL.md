@@ -8,4 +8,3 @@
 - No Pages configuration, deployment, public preview, `main` push, or merge was performed.
 - OD-04 English and Chinese About copy is used verbatim from the accepted source record.
 - `HOME-TOKEN-01`, PCS independent QA, runtime browser QA, and release authorization remain open outside this implementation branch.
-

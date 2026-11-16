@@ -28,4 +28,3 @@ The adapter preserves separate state axes. Locale publication uses `Draft | Publ
 - Page teams do not rename `NOT-` fixtures or claim them as approved real `NTE-` records.
 - Fallback metadata must expose the source language and use `noindex`.
 - Only the Shell owner changes canonical adapter, route, output, and shared asset-gate files.
-

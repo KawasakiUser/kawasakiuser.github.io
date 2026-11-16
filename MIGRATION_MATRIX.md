@@ -9,4 +9,3 @@
 | Build scanner allowed one scaffold file | Scanner uses generated output manifest and fails closed on any extra output | `scripts/scan-build.ts`, `SEC-07` |
 | Asset approval was declaration plus source inventory | `assertApprovedAsset` checks canonical path, existence, independent allowlist membership, and SHA-256 | `src/lib/canonical.ts` |
 | Home was a noindex placeholder | Shell/Home is implemented on an engineering branch, with A23 as an explicitly protected neutral slot | `src/pages/index.astro`, `src/pages/zh/index.astro` |
-
