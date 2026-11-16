@@ -1,4 +1,4 @@
-import test from 'node:test'; import assert from 'node:assert/strict'; import {validRecords,validRegistry} from '../src/lib/fixtures'; import {validateDataset} from '../src/lib/validate'; import {ValidationError} from '../src/lib/errors'; import {assertAllocationRace,validateRegistry} from '../src/lib/registry'; import {assertUniqueArcAnchors,buildRoutes,resolveLocale} from '../src/lib/routes'; import {assertSafeText,validateAssetManifest} from '../src/lib/security';
+import test from 'node:test'; import assert from 'node:assert/strict'; import {validRecords,validRegistry} from '../src/lib/fixtures'; import {validateDataset} from '../src/lib/validate'; import {ValidationError} from '../src/lib/errors'; import {assertAllocationRace,validateRegistry} from '../src/lib/registry'; import {assertUniqueArcAnchors,buildRoutes,resolveLocale} from '../src/lib/routes'; import {assertSafeText,validateAssetManifest} from '../src/lib/security'; import {adaptRecord,getOutputManifest,getRouteManifest,getSafeRelatedLinks,SHELL_OUTPUT_SCOPE} from '../src/lib/canonical';
 const expectCode=(fn:()=>unknown,code:string)=>{assert.throws(fn,(e:unknown)=>e instanceof ValidationError&&e.code===code)};
 test('TEST-001 five entities and fixture validate',()=>validateDataset(validRecords,validRegistry));
 test('TEST-002/003 locales and shared IDs',()=>{assert.deepEqual(new Set(validRecords.map(r=>r.locale)),new Set(['en','zh']));assert.equal(validRecords.filter(r=>r.permanentId==='PRJ-0001').length,2)});
@@ -27,3 +27,40 @@ test('TEST-030 unsafe links and SVG',()=>{expectCode(()=>assertSafeText('javascr
 test('TEST-031 executable markup rejected',()=>expectCode(()=>assertSafeText('<script>alert(1)</script>'),'EXECUTABLE_MARKUP'));
 test('TEST-032 invalid published content fails closed',()=>expectCode(()=>validateDataset([{...validRecords[0]!,title:''}],validRegistry),'PUBLISHED_REQUIRED'));
 test('TEST-042 reproducible foundation script',()=>assert.equal(typeof validateDataset,'function'));
+test('INT-01 legacy NOT fixture is explicit while NTE is canonical',()=>{const legacy=adaptRecord(validRecords[4]!); assert.equal(legacy.legacyFixture,true); assert.doesNotThrow(()=>adaptRecord({...validRecords[4]!,permanentId:'NTE-0001'}));});
+test('INT-02 route manifest exposes independent state axes',()=>{const history=[{path:'/projects/old/',permanentId:'PRJ-0001',locale:'en' as const,firstPublishedAt:'2025-01-01',currentState:'Tombstone' as const}]; const draft={...validRecords[0]!,publicationStatus:'Draft' as const}; const result=getRouteManifest([draft,...validRecords.slice(1)],history); assert.ok(result.some((r)=>r.state==='tombstone'));});
+test('INT-03 related links omit unpublished targets',()=>{const note={...validRecords[4]!,relations:[{id:'PRJ-0001',entity:'Project' as const}]}; const draftProject={...validRecords[0]!,publicationStatus:'Draft' as const}; assert.deepEqual(getSafeRelatedLinks(note,[note,draftProject]),[]);});
+test('P1-01 only pinned NOT fixture is compatible',()=>{assert.equal(adaptRecord(validRecords[4]!).legacyFixture,true); expectCode(()=>adaptRecord({...validRecords[4]!,permanentId:'NOT-9999'}),'LEGACY_ID_UNREGISTERED'); assert.doesNotThrow(()=>adaptRecord({...validRecords[4]!,permanentId:'NTE-0002'}));});
+test('P1-02 Published Note requires summary',()=>{expectCode(()=>validateDataset([{...validRecords[4]!,summary:undefined}],validRegistry),'PUBLISHED_REQUIRED');});
+test('P1-03 global Project facts and Work validity must match',()=>{
+  const projectParity=validRecords.map((record)=>record.permanentId==='PRJ-0001'&&record.locale==='zh'?{...record,primaryType:'Different'}:record);
+  expectCode(()=>validateDataset(projectParity,validRegistry),'GLOBAL_FACTS');
+  const workParity=[...validRecords,{...validRecords[2]!,locale:'zh' as const,validityStatus:'Withdrawn' as const,withdrawnNotice:'Withdrawn synthetic fixture.'}];
+  expectCode(()=>validateDataset(workParity,validRegistry),'GLOBAL_FACTS');
+});
+test('P1-03 Withdrawn Work is excluded from publication and ordinary links',()=>{
+  const withdrawn={...validRecords[2]!,validityStatus:'Withdrawn' as const,withdrawnNotice:'Withdrawn synthetic fixture.'};
+  const records=validRecords.map((record)=>record.permanentId==='ARC-0001'?withdrawn:record);
+  assert.equal(getRouteManifest(records).find((route)=>route.permanentId==='ARC-0001')?.kind,'withdrawn');
+  const note={...validRecords[4]!,projectIds:[],relations:[{id:'ARC-0001',entity:'ArchiveRecord' as const}]};
+  assert.equal(getSafeRelatedLinks(note,records).length,0);
+});
+test('P1-03 locale state matrix covers Draft, Published, Withdrawn, missing and history',()=>{
+  const published=resolveLocale(validRecords,'PRJ-0001','en');
+  const draft=resolveLocale(validRecords.map((record)=>record.permanentId==='PRJ-0001'&&record.locale==='zh'?{...record,publicationStatus:'Draft' as const}:record),'PRJ-0001','zh');
+  const withdrawn=resolveLocale(validRecords.map((record)=>record.permanentId==='PRJ-0001'&&record.locale==='zh'?{...record,publicationStatus:'Withdrawn' as const}:record),'PRJ-0001','zh');
+  const missing=resolveLocale(validRecords,'NOT-0001','zh');
+  const historical=resolveLocale(validRecords.filter((record)=>!(record.permanentId==='PRJ-0001'&&record.locale==='zh')),'PRJ-0001','zh',[{path:'/zh/projects/foundation-fixture/',permanentId:'PRJ-0001',locale:'zh',firstPublishedAt:'2025-01-01',currentState:'Tombstone'}]);
+  assert.equal(published.kind,'published');
+  assert.equal(draft.kind,'source-fallback');
+  assert.equal(withdrawn.kind,'withdrawn');
+  assert.equal(missing.kind,'source-fallback');
+  assert.equal(historical.kind,'tombstone');
+});
+test('P1-04 output scope is explicitly extensible and fail-closed',()=>{
+  const manifest=getOutputManifest([],SHELL_OUTPUT_SCOPE);
+  assert.deepEqual(manifest.allowedFiles,['index.html','zh/index.html']);
+  expectCode(()=>getOutputManifest([], {scopeId:'bad',approvedRoutes:[{route:'/',outputFiles:['../escape.html']}]}),'OUTPUT_PATH');
+  const extended=getOutputManifest([], {scopeId:'G6B-COMPOSITE',approvedRoutes:[...SHELL_OUTPUT_SCOPE.approvedRoutes,{route:'/projects/foundation-fixture/',outputFiles:['projects/foundation-fixture/index.html']}]});
+  assert.ok(extended.allowedFiles.includes('projects/foundation-fixture/index.html'));
+});

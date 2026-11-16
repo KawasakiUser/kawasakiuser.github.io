@@ -4,6 +4,7 @@ import type { RecordBase, RegistryEvent, RouteHistory } from '../src/lib/types';
 import { validateDataset, validateAssets } from '../src/lib/validate';
 import { buildRoutes } from '../src/lib/routes';
 import { validatePublicSourceGate } from './public-gate';
+import { getCanonicalEntities, getOutputManifest, getRegistryView, getRouteManifest } from '../src/lib/canonical';
 
 function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, 'utf8')) as T;
@@ -19,6 +20,13 @@ validateDataset(records, registry, history);
 mkdirSync('artifacts', { recursive: true });
 validateAssets(assets);
 const routes = buildRoutes(records, history);
-writeFileSync('artifacts/route-manifest.json', JSON.stringify({ generatedFrom: 'src/data/public/content', routes }, null, 2) + '\n');
-writeFileSync('validation-output.json', JSON.stringify({ status: 'PASS', actualRecords: records.length, registryEntries: registry.length, routeCount: routes.length, source: 'actual JSON content and ledgers', privateContentIncluded: false }, null, 2) + '\n');
+const canonical = getCanonicalEntities(records);
+const registryView = getRegistryView(records, registry);
+const routeManifest = getRouteManifest(records, history);
+const outputManifest = getOutputManifest(routeManifest);
+writeFileSync('artifacts/route-manifest.json', JSON.stringify({ generatedFrom: 'canonical adapter', routes: routeManifest }, null, 2) + '\n');
+writeFileSync('artifacts/canonical-entities.json', JSON.stringify(canonical, null, 2) + '\n');
+writeFileSync('artifacts/registry-view.json', JSON.stringify({ activeIds: registryView.activeIds, retiredIds: registryView.retiredIds }, null, 2) + '\n');
+writeFileSync('artifacts/output-manifest.json', JSON.stringify(outputManifest, null, 2) + '\n');
+writeFileSync('validation-output.json', JSON.stringify({ status: 'PASS', actualRecords: records.length, registryEntries: registry.length, routeCount: routeManifest.length, source: 'actual JSON content and ledgers', privateContentIncluded: false }, null, 2) + '\n');
 console.log('PASS actual data validation: ' + records.length + ' records, ' + registry.length + ' registry entries, ' + routes.length + ' routes');

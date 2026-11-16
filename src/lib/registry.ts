@@ -1,11 +1,15 @@
 import type { Entity, RecordBase, RegistryEvent } from './types';
 import { ValidationError } from './errors';
+import { isPinnedLegacyNoteId } from './legacy-fixtures';
 
 // The ledger is append-only: an old Assigned event does not authorize use
 // after a terminal Retired event.
 export function currentRegistry(events: readonly RegistryEvent[]): Map<string, RegistryEvent> {
   const current = new Map<string, RegistryEvent>();
   for (const event of events) {
+    if (!prefixMatchesEntity(event.entity, event.permanentId, event.entity === 'Note')) {
+      throw new ValidationError('REGISTRY_ID_TYPE', 'Registry ID does not match entity: ' + event.permanentId);
+    }
     if (event.state !== 'Assigned' && event.state !== 'Retired') {
       throw new ValidationError('REGISTRY_STATE', 'Unknown registry state: ' + event.permanentId);
     }
@@ -51,5 +55,14 @@ export function assertAllocationRace(existing: readonly RegistryEvent[], candida
 }
 
 export function prefixFor(entity: Entity): string {
-  return { Project: 'PRJ', ArchiveRecord: 'ARC', Note: 'NOT', Collaboration: 'COL', Link: 'LNK' }[entity];
+  return { Project: 'PRJ', ArchiveRecord: 'ARC', Note: 'NTE', Collaboration: 'COL', Link: 'LNK' }[entity];
+}
+
+export function isNoteId(id: string): boolean {
+  return /^NTE-\d{4}$/.test(id);
+}
+
+export function prefixMatchesEntity(entity: Entity, id: string, allowLegacyFixture = false): boolean {
+  if (entity === 'Note') return isNoteId(id) || (allowLegacyFixture && isPinnedLegacyNoteId(id));
+  return new RegExp('^' + prefixFor(entity) + '-\\d{4}$').test(id);
 }

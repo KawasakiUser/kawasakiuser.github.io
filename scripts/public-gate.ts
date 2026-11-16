@@ -3,6 +3,8 @@ import { existsSync, lstatSync, readFileSync, readdirSync } from 'node:fs';
 import { relative, resolve, sep } from 'node:path';
 import { ValidationError } from '../src/lib/errors';
 import type { RecordBase } from '../src/lib/types';
+import { assertApprovedAsset } from '../src/lib/canonical';
+import { LEGACY_FIXTURE_PINS } from '../src/lib/legacy-fixtures';
 
 interface ApprovedSource { path: string; sha256: string }
 interface SourceAllowlist { scope: string; status: string; files: ApprovedSource[] }
@@ -78,6 +80,16 @@ export function validatePublicSourceGate(records: readonly RecordBase[], assets:
     throw new ValidationError('MISSING_PUBLIC_FILE', 'Catalogued publishable file missing: ' + path);
   }
 
+  for (const pin of LEGACY_FIXTURE_PINS) {
+    if (!approved.has(pin.sourcePath) || approved.get(pin.sourcePath) !== pin.sha256) {
+      throw new ValidationError('LEGACY_PIN', 'Legacy fixture pin is absent or stale: ' + pin.permanentId);
+    }
+    const record = records.find((candidate) => candidate.permanentId === pin.permanentId && candidate.locale === pin.locale);
+    if (!record || record.entity !== pin.entity || record.sourceLocale !== pin.sourceLocale || record.slug !== pin.slug) {
+      throw new ValidationError('LEGACY_PIN', 'Legacy fixture record does not match its pinned source: ' + pin.permanentId);
+    }
+  }
+
   const actualJson = actual.filter((path) => path.startsWith('src/data/public/content/') && path.endsWith('.json'));
   if (actualJson.length !== records.length) throw new ValidationError('PUBLIC_RECORD_SET', 'Public JSON file count differs from loaded records');
   const declared = new Set<string>();
@@ -90,6 +102,7 @@ export function validatePublicSourceGate(records: readonly RecordBase[], assets:
     if (asset.path.endsWith('.json') && asset.mime !== 'application/json') {
       throw new ValidationError('PUBLIC_MIME', 'JSON asset has wrong MIME: ' + asset.path);
     }
+    assertApprovedAsset(asset, [...approved].map(([path, sha256]) => ({ path, sha256 })));
   }
   if (declared.size !== approved.size || [...approved.keys()].some((path) => !declared.has(path))) {
     throw new ValidationError('PUBLIC_DECLARATION', 'Asset manifest and approved file inventory differ');
