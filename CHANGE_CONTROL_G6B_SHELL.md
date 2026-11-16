@@ -2,6 +2,7 @@
 
 - Base: `1a065cabc9467fe7e52697cff5ce003701d62169` from `KawasakiUser/kawasakiuser.github.io/main`.
 - Branch: `g6b/integration-canonical`.
+- Final closure commit: `a7c71fbf32a3d2b53e966964d0517351844065c7`.
 - Scope implemented: shared canonical adapter, pinned legacy-ID compatibility, Published Note completeness, global fact parity, withdrawn Work semantics, explicit route/output scopes, manifest-driven output scan, negative integration cases, shared Header/Footer, Home 01–05 bilingual shell.
 - Synthetic fixtures only. No private or real unpublished content was added.
 - A23 source art and prototype files were not modified or embedded. Home 01 uses a labeled neutral protected slot.

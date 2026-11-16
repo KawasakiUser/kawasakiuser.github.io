@@ -72,7 +72,7 @@ The output scanner is manifest-driven and fail-closed. `SHELL_OUTPUT_SCOPE` curr
 - Astro `5.18.2`
 - TypeScript `5.9.3`
 - `tsx` `4.20.6`
-- Shared base commit for this closure is recorded in the final delivery metadata.
+- Shared base commit for this closure is `a7c71fbf32a3d2b53e966964d0517351844065c7`.
 - Consumers branch from the final `g6b/integration-canonical` commit or a PCS-designated descendant.
 - No consumer branch pushes or merges to `main`.
 - No consumer branch changes Pages settings, A23 assets, private content, or shared security files without a single controlled interface change.
