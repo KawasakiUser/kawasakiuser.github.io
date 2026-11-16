@@ -1,0 +1,32 @@
+---
+import type { CanonicalRecord } from '../../lib/canonical';
+import type { Detail } from './page-model';
+import { paLabels } from './labels';
+import ProjectMeta from './ProjectMeta.astro';
+import RelatedLinks from './RelatedLinks.astro';
+interface Props { detail: Detail; record: CanonicalRecord }
+const { detail, record } = Astro.props;
+const copy = paLabels(record.locale);
+---
+<article lang={record.locale}>
+  <header class="pa-intro">
+    <h1>{record.title}</h1>
+    <p>{record.summary}</p>
+    <ProjectMeta locale={record.locale} type={record.primaryType} lifecycle={record.lifecycle} />
+  </header>
+  <section class="pa-section">
+    <h2>{copy.goal}</h2>
+    <p>{record.goal}</p>
+  </section>
+  <RelatedLinks heading={copy.works} links={detail.works} />
+  <RelatedLinks heading={copy.notes} links={detail.notes} />
+  {detail.milestones.length > 0 && <section class="pa-section" aria-labelledby="pa-milestones">
+    <h2 id="pa-milestones">{copy.timeline}</h2>
+    <ol class="pa-timeline" role="list">
+      {detail.milestones.map((item) => <li id={item.id} tabindex="-1">
+        <h3><a href={'#' + item.id}><span class="pa-timeline-date"><time datetime={item.date}>{item.date}</time></span> {item.title}</a></h3>
+        <p>{item.summary}</p>
+      </li>)}
+    </ol>
+  </section>}
+</article>
