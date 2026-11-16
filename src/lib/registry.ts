@@ -51,5 +51,13 @@ export function assertAllocationRace(existing: readonly RegistryEvent[], candida
 }
 
 export function prefixFor(entity: Entity): string {
-  return { Project: 'PRJ', ArchiveRecord: 'ARC', Note: 'NOT', Collaboration: 'COL', Link: 'LNK' }[entity];
+  return { Project: 'PRJ', ArchiveRecord: 'ARC', Note: 'NTE', Collaboration: 'COL', Link: 'LNK' }[entity];
+}
+
+export function isNoteId(id: string): boolean {
+  return /^(?:NTE|NOT)-\d{4}$/.test(id);
+}
+
+export function prefixMatchesEntity(entity: Entity, id: string): boolean {
+  return entity === 'Note' ? isNoteId(id) : new RegExp('^' + prefixFor(entity) + '-\\d{4}$').test(id);
 }

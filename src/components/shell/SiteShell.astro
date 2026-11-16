@@ -1,0 +1,48 @@
+---
+interface Props {
+  locale: 'en' | 'zh';
+}
+const { locale } = Astro.props;
+const isZh = locale === 'zh';
+const labels = isZh
+  ? { skip: '跳到主要内容', nav: '主导航', home: '首页', projects: '项目', archive: '档案', notes: '笔记', about: '关于', switch: 'English', switchHref: '/', footer: '页脚导航' }
+  : { skip: 'Skip to main content', nav: 'Primary navigation', home: 'Home', projects: 'Projects', archive: 'Archive', notes: 'Notes', about: 'About', switch: '中文', switchHref: '/zh/', footer: 'Footer navigation' };
+---
+<a class="skip-link" href="#main">{labels.skip}</a>
+<header class="site-header">
+  <a class="identity" href={isZh ? '/zh/' : '/'} aria-label={isZh ? 'ShiJie Wang 首页' : 'ShiJie Wang home'}>ShiJie Wang</a>
+  <nav aria-label={labels.nav}>
+    <a href={isZh ? '/zh/#projects' : '/#projects'}>{labels.projects}</a>
+    <a href={isZh ? '/zh/#archive' : '/#archive'}>{labels.archive}</a>
+    <a href={isZh ? '/zh/#notes' : '/#notes'}>{labels.notes}</a>
+    <a href={isZh ? '/zh/#about' : '/#about'}>{labels.about}</a>
+    <a class="locale-switch" href={labels.switchHref} lang={isZh ? 'en' : 'zh'}>{labels.switch}</a>
+  </nav>
+</header>
+<slot />
+<footer class="site-footer" aria-label={labels.footer}>
+  <nav aria-label={labels.footer}>
+    <a href={isZh ? '/zh/' : '/'}>{labels.home}</a>
+    <a href={isZh ? '/zh/#about' : '/#about'}>{labels.about}</a>
+  </nav>
+</footer>
+
+<style>
+  :global(*) { box-sizing: border-box; }
+  :global(html) { scroll-behavior: auto; }
+  :global(body) { margin: 0; background: #f7f4ed; color: #20201e; font-family: "Times New Roman", "Songti SC", SimSun, serif; }
+  :global(a) { color: inherit; }
+  .skip-link { position: absolute; left: 1rem; top: -4rem; z-index: 5; padding: .65rem .8rem; background: #182a3d; color: #fafaf7; }
+  .skip-link:focus { top: 1rem; }
+  .site-header { display: flex; align-items: center; justify-content: space-between; gap: 2rem; min-height: 5rem; padding: 1.4rem clamp(1.2rem, 5vw, 5.5rem); border-bottom: 1px solid rgba(32,32,30,.2); }
+  .identity { font-size: 1.15rem; text-decoration: none; letter-spacing: .02em; }
+  .site-header nav, .site-footer nav { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem 1.35rem; font-size: .95rem; }
+  .site-header nav a, .site-footer nav a { text-decoration: none; }
+  .site-header nav a:hover, .site-header nav a:focus-visible, .site-footer nav a:hover, .site-footer nav a:focus-visible { text-decoration: underline; text-underline-offset: .2em; }
+  .locale-switch { border-left: 1px solid rgba(32,32,30,.35); padding-left: 1.35rem; }
+  .site-footer { display: flex; justify-content: flex-end; padding: 2rem clamp(1.2rem, 5vw, 5.5rem); border-top: 1px solid rgba(32,32,30,.2); }
+  :global(:focus-visible) { outline: 3px solid #182a3d; outline-offset: 3px; }
+  @media (max-width: 600px) { .site-header { align-items: flex-start; flex-direction: column; gap: .9rem; } .site-header nav { gap: .65rem 1rem; } .locale-switch { padding-left: 1rem; } }
+  @media (forced-colors: active) { .site-header, .site-footer { border-color: CanvasText; } .skip-link { forced-color-adjust: auto; } }
+  @media (prefers-reduced-motion: reduce) { :global(*) { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+</style>

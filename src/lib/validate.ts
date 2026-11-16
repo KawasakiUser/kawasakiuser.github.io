@@ -1,6 +1,6 @@
 import type { RecordBase, RegistryEvent, RouteHistory } from './types';
 import { ValidationError } from './errors';
-import { prefixFor, reconcileRegistry } from './registry';
+import { prefixMatchesEntity, reconcileRegistry } from './registry';
 import { assertSafeText, validateAssetManifest } from './security';
 import { buildRoutes } from './routes';
 
@@ -30,8 +30,11 @@ export function validateDataset(records: readonly RecordBase[], registry: readon
     variants.push(record);
     byId.set(record.permanentId, variants);
 
-    if (!new RegExp('^' + prefixFor(record.entity) + '-\\d{4}$').test(record.permanentId)) {
+    if (!prefixMatchesEntity(record.entity, record.permanentId)) {
       throw new ValidationError('ID_TYPE', 'Wrong ID prefix for ' + record.entity + ': ' + record.permanentId);
+    }
+    if (record.entity === 'ArchiveRecord' && record.validityStatus && record.validityStatus !== 'Valid' && record.validityStatus !== 'Withdrawn') {
+      throw new ValidationError('WORK_STATUS', 'Unsupported Work validity status: ' + record.permanentId);
     }
     if (record.publicationStatus === 'Published') assertPublishedMinimum(record);
     for (const value of [record.title, record.summary, record.goal, record.body, record.withdrawnNotice].filter((value): value is string => Boolean(value))) {

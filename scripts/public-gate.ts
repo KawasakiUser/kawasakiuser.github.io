@@ -3,6 +3,7 @@ import { existsSync, lstatSync, readFileSync, readdirSync } from 'node:fs';
 import { relative, resolve, sep } from 'node:path';
 import { ValidationError } from '../src/lib/errors';
 import type { RecordBase } from '../src/lib/types';
+import { assertApprovedAsset } from '../src/lib/canonical';
 
 interface ApprovedSource { path: string; sha256: string }
 interface SourceAllowlist { scope: string; status: string; files: ApprovedSource[] }
@@ -90,6 +91,7 @@ export function validatePublicSourceGate(records: readonly RecordBase[], assets:
     if (asset.path.endsWith('.json') && asset.mime !== 'application/json') {
       throw new ValidationError('PUBLIC_MIME', 'JSON asset has wrong MIME: ' + asset.path);
     }
+    assertApprovedAsset(asset, [...approved].map(([path, sha256]) => ({ path, sha256 })));
   }
   if (declared.size !== approved.size || [...approved.keys()].some((path) => !declared.has(path))) {
     throw new ValidationError('PUBLIC_DECLARATION', 'Asset manifest and approved file inventory differ');

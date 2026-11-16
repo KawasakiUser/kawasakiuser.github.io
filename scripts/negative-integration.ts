@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -32,6 +32,17 @@ function caseRun(label: string, inject: (dir: string) => void, expected: string)
       assert.ok(result.text.includes(expected), label + ': missing expected diagnostic ' + expected + '\n' + result.text);
       console.log('PASS negative actual-input ' + label + ' (' + command + ') exit=' + result.status + ' diagnostic=' + expected);
     }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+
+function buildOnlyCase(label: string, inject: (dir: string) => void, expected: string): void {
+  const dir = prepare();
+  try {
+    inject(dir);
+    const result = run(dir, 'build');
+    assert.notEqual(result.status, 0, label + ': npm run build unexpectedly PASS\n' + result.text);
+    assert.ok(result.text.includes(expected), label + ': missing expected diagnostic ' + expected + '\n' + result.text);
+    console.log('PASS negative build-output ' + label + ' exit=' + result.status + ' diagnostic=' + expected);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
@@ -72,4 +83,17 @@ caseRun('SEC-04 modified reviewed file', (dir) => {
 caseRun('SEC-05 hidden public file', (dir) => {
   writeFileSync(join(dir, 'src/data/public/content/.sensitive-cache'), 'fixture');
 }, 'UNLISTED_PUBLIC_FILE');
+caseRun('SEC-06 unlisted public asset', (dir) => {
+  mkdirSync(join(dir, 'public'), { recursive: true });
+  writeFileSync(join(dir, 'public/rogue.txt'), 'unreviewed asset');
+}, 'UNLISTED_PUBLIC_FILE');
+buildOnlyCase('SEC-07 extra static page', (dir) => {
+  mkdirSync(join(dir, 'src/pages/rogue'), { recursive: true });
+  writeFileSync(join(dir, 'src/pages/rogue/index.astro'), '<html><body>rogue</body></html>');
+}, 'Unexpected build output paths');
+buildOnlyCase('SEC-08 executable output', (dir) => {
+  const path = join(dir, 'src/pages/index.astro');
+  const source = readFileSync(path, 'utf8');
+  writeFileSync(path, source.replace('<body>', '<body><script>alert(1)</script>'));
+}, 'Build output contains executable or private content');
 console.log('PASS all real-input CLI negative integration cases');

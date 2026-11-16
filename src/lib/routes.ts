@@ -63,7 +63,7 @@ export function buildRoutes(records: readonly RecordBase[], history: readonly Ro
     if (old.currentState === 'Published') {
       throw new ValidationError('HISTORY_DISAPPEARANCE', 'Published historical URL disappeared: ' + old.path);
     }
-    const entity = old.permanentId.startsWith('PRJ-') ? 'Project' : old.permanentId.startsWith('NOT-') ? 'Note' : old.permanentId.startsWith('ARC-') ? 'ArchiveRecord' : null;
+    const entity = old.permanentId.startsWith('PRJ-') ? 'Project' : /^(?:NTE|NOT)-/.test(old.permanentId) ? 'Note' : old.permanentId.startsWith('ARC-') ? 'ArchiveRecord' : null;
     const section = old.path.replace(/^\/zh/, '').split('/')[1];
     if (!entity || (section === 'projects' && entity !== 'Project') || (section === 'notes' && entity !== 'Note') || (section === 'archive' && entity !== 'ArchiveRecord')) {
       throw new ValidationError('HISTORY_ENTITY', 'Historical URL entity/section mismatch: ' + old.path);
