@@ -1,0 +1,60 @@
+---
+import type { Locale } from '../../lib/types';
+import type { AboutMilestone } from './page-model';
+
+interface Props {
+  locale: Locale;
+  entries: AboutMilestone[];
+}
+
+const { locale, entries } = Astro.props;
+const dateFormat = new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en', {
+  year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC'
+});
+---
+
+<ol class="timeline" role="list">
+  {entries.map((entry) => (
+    <li id={entry.id} tabindex="-1">
+      <time datetime={entry.date}>{dateFormat.format(new Date(entry.date + 'T00:00:00Z'))}</time>
+      <div class="event">
+        <h3>{entry.title}</h3>
+        <p>{entry.summary}</p>
+        <a href={'#' + entry.id} aria-label={locale === 'zh'
+          ? '#' + entry.id + ' · ' + entry.title + '的永久链接'
+          : '#' + entry.id + ' · Permalink for ' + entry.title}>
+          #{entry.id}
+        </a>
+        {entry.related.length > 0 && (
+          <ul>
+            {entry.related.map((link) => <li><a href={link.href}>{link.title}</a></li>)}
+          </ul>
+        )}
+      </div>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .timeline { list-style: none; padding: 0; margin: 0; }
+  .timeline > li {
+    display: grid;
+    gap: .6rem;
+    scroll-margin-block-start: 1rem;
+    padding-block: 1.25rem;
+    border-block-end: 1px solid currentColor;
+  }
+  time { color: #102a43; font-variant-numeric: tabular-nums; }
+  h3 { font-size: clamp(1.2rem, 2.2vw, 1.65rem); font-weight: 400; line-height: 1.2; margin: 0; }
+  p { margin: .55rem 0 .45rem; max-inline-size: 65ch; }
+  a { display: inline-block; padding-block: .15rem; }
+  .event > a { font-size: .9rem; }
+  .timeline > li:target { outline: 2px solid #102a43; outline-offset: 3px; }
+  @media (min-width: 64rem) {
+    .timeline > li { grid-template-columns: minmax(0, 10rem) minmax(0, 1fr); column-gap: 2rem; }
+    .event { border-inline-start: 1px solid currentColor; padding-inline-start: 1.5rem; }
+  }
+  @media (forced-colors: active) {
+    .timeline > li:target { outline: 2px solid Highlight; }
+  }
+</style>
