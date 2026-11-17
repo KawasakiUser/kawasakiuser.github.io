@@ -1,0 +1,49 @@
+diff --git a/scripts/validate.ts b/scripts/validate.ts
+index b03b461..785caaa 100644
+--- a/scripts/validate.ts
++++ b/scripts/validate.ts
+@@ -4,6 +4,7 @@ import type { RecordBase, RegistryEvent, RouteHistory } from '../src/lib/types';
+ import { validateDataset, validateAssets } from '../src/lib/validate';
+ import { buildRoutes } from '../src/lib/routes';
+ import { validatePublicSourceGate } from './public-gate';
++import { ABOUT_CANDIDATE_SCOPE } from '../src/components/about/page-model';
+ import { getCanonicalEntities, getOutputManifest, getRegistryView, getRouteManifest } from '../src/lib/canonical';
+
+ function readJson<T>(path: string): T {
+@@ -23,7 +24,7 @@ const routes = buildRoutes(records, history);
+ const canonical = getCanonicalEntities(records);
+ const registryView = getRegistryView(records, registry);
+ const routeManifest = getRouteManifest(records, history);
+-const outputManifest = getOutputManifest(routeManifest);
++const outputManifest = getOutputManifest(routeManifest, ABOUT_CANDIDATE_SCOPE);
+ writeFileSync('artifacts/route-manifest.json', JSON.stringify({ generatedFrom: 'canonical adapter', routes: routeManifest }, null, 2) + '\n');
+ writeFileSync('artifacts/canonical-entities.json', JSON.stringify(canonical, null, 2) + '\n');
+ writeFileSync('artifacts/registry-view.json', JSON.stringify({ activeIds: registryView.activeIds, retiredIds: registryView.retiredIds }, null, 2) + '\n');
+diff --git a/src/pages/about/index.astro b/src/pages/about/index.astro
+new file mode 100644
+index 0000000..5f9d0be
+--- /dev/null
++++ b/src/pages/about/index.astro
+@@ -0,0 +1,8 @@
++---
++import AboutPage from '../../components/about/AboutPage.astro';
++import { makeAboutView } from '../../components/about/page-model';
++import { loadIntegrationSnapshot } from '../../lib/integration';
++
++const view = makeAboutView(loadIntegrationSnapshot(), 'en');
++---
++<AboutPage locale="en" view={view} />
+diff --git a/src/pages/zh/about/index.astro b/src/pages/zh/about/index.astro
+new file mode 100644
+index 0000000..61c97dd
+--- /dev/null
++++ b/src/pages/zh/about/index.astro
+@@ -0,0 +1,8 @@
++---
++import AboutPage from '../../../components/about/AboutPage.astro';
++import { makeAboutView } from '../../../components/about/page-model';
++import { loadIntegrationSnapshot } from '../../../lib/integration';
++
++const view = makeAboutView(loadIntegrationSnapshot(), 'zh');
++---
++<AboutPage locale="zh" view={view} />

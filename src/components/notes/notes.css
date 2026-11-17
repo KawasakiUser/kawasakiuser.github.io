@@ -1,0 +1,67 @@
+.notes-surface {
+  background: #fafaf7;
+  color: #111;
+  min-block-size: 55vh;
+  padding: clamp(2rem, 6vw, 5.75rem) clamp(1.25rem, 5vw, 4rem);
+  font-size: clamp(1.0625rem, .98rem + .2vw, 1.125rem);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.notes-surface:lang(zh) { font-family: "Songti SC", SimSun, "Noto Serif CJK SC", serif; }
+.notes-surface article:lang(en) { font-family: "Times New Roman", serif; }
+.notes-index, .notes-reader { margin-inline: auto; }
+.notes-index { max-inline-size: 74rem; }
+.notes-reader { max-inline-size: 49rem; }
+.notes-surface h1, .notes-surface h2, .notes-surface h3, .notes-surface p { margin-block-start: 0; }
+.notes-surface h1 {
+  font-size: clamp(2.3rem, 1.65rem + 3vw, 4.35rem);
+  font-weight: 500;
+  line-height: 1.1;
+  margin-block-end: 1rem;
+}
+.notes-index-heading > p, .notes-standfirst {
+  font-size: clamp(1.125rem, 1rem + .55vw, 1.45rem);
+  max-inline-size: 52ch;
+  margin-block-end: 1rem;
+}
+.notes-meta { font-size: .9rem; font-variant-numeric: tabular-nums; }
+.notes-surface a { color: #102a43; text-decoration: underline; text-underline-offset: .19em; text-decoration-thickness: .075em; }
+.notes-surface a:hover { text-decoration-thickness: .14em; }
+.notes-surface :focus-visible { outline: 2px solid #102a43; outline-offset: 3px; }
+.notes-surface :target { scroll-margin-block-start: 1rem; }
+.notes-index-list { list-style: none; padding: 0; margin: 2.8rem 0 0; border-block-start: 1px solid; }
+.notes-index-list > li { border-block-end: 1px solid; }
+.notes-index-entry { padding-block: 1.8rem; max-inline-size: 49rem; }
+.notes-index-entry h2 {
+  font-weight: 500;
+  font-size: clamp(1.55rem, 1.3rem + 1.2vw, 2.4rem);
+  line-height: 1.2;
+  margin-block-end: .6rem;
+}
+.notes-index-entry p { margin-block-end: .55rem; }
+.notes-return { font-size: .95rem; margin-block-end: 2rem; }
+.notes-article-heading { border-block-end: 1px solid; margin-block-end: 1.65rem; }
+.notes-toc, .notes-notice, .notes-related { border-inline-start: 2px solid #102a43; padding-inline-start: 1rem; margin-block: 1.5rem 2rem; }
+.notes-toc p, .notes-notice p { margin-block-end: .3rem; }
+.notes-toc ul { margin: 0; padding-inline-start: 1.1em; }
+.scientific-prose { min-inline-size: 0; }
+.scientific-prose h2, .scientific-prose h3 { line-height: 1.3; margin-block: 2.1rem .8rem; }
+.scientific-prose h2 { font-size: 1.5em; font-weight: 500; }
+.scientific-prose h3 { font-size: 1.2em; }
+.scientific-prose .section-link { font-size: .72em; font-weight: 400; }
+.scientific-prose blockquote { border-inline-start: 2px solid #102a43; margin-inline: 0; padding-inline-start: 1rem; }
+.scientific-prose figure { margin: 1.35rem 0; }
+.scientific-prose img { display: block; max-inline-size: 100%; block-size: auto; }
+.scientific-prose figcaption { font-size: .93rem; margin-block-start: .5rem; }
+.scientific-prose .notes-scroll { max-inline-size: 100%; overflow-x: auto; margin-block: 1rem 1.4rem; padding: .65rem; border: 1px solid; }
+.scientific-prose .notes-equation { display: flex; align-items: center; gap: 1.25rem; inline-size: max-content; min-inline-size: 100%; justify-content: space-between; }
+.scientific-prose math { font-size: 1em; }
+.scientific-prose pre { margin: 0; inline-size: max-content; }
+.scientific-prose code { font-family: ui-monospace, monospace; font-size: .88em; }
+.scientific-prose table { border-collapse: collapse; inline-size: max-content; }
+.scientific-prose th, .scientific-prose td { padding: .35rem .7rem; border: 1px solid; text-align: start; }
+.scientific-prose caption { text-align: start; margin-block-end: .4rem; }
+@media (forced-colors: active) {
+  .notes-surface a { color: LinkText; }
+  .notes-surface :focus-visible { outline: 2px solid Highlight; }
+}

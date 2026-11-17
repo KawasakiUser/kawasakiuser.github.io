@@ -1,0 +1,35 @@
+---
+import type { CanonicalRecord } from '../../lib/canonical';
+import type { Detail } from '../projects/page-model';
+import { paLabels } from '../projects/labels';
+import RelatedLinks from '../projects/RelatedLinks.astro';
+import { vettedResources, type WorkProvenance } from './public-provenance';
+interface Props { detail: Detail; record: CanonicalRecord; provenance?: WorkProvenance }
+const { detail, record, provenance } = Astro.props;
+const copy = paLabels(record.locale);
+const resources = vettedResources(provenance?.resources ?? []);
+const versions = provenance?.versions ?? [];
+---
+<article lang={record.locale}>
+  <header class="pa-intro">
+    <h1>{record.title}</h1>
+    <p>{record.summary}</p>
+    <dl class="pa-meta">
+      <div><dt>{copy.workDate}</dt><dd><time datetime={record.date}>{record.date}</time></dd></div>
+    </dl>
+  </header>
+  {resources.length > 0 && <section class="pa-section">
+    <h2>{copy.resources}</h2>
+    <ul class="pa-links">{resources.map(({ label, href }) => <li><a href={href}>{label}</a></li>)}</ul>
+  </section>}
+  {versions.length > 0 && <section class="pa-section">
+    <h2>{copy.versionHistory}</h2>
+    <ol class="pa-versions">
+      {versions.map(({ label, date, summary }) => <li>
+        <h3>{label}</h3><time datetime={date}>{date}</time>
+        {summary && <p>{summary}</p>}
+      </li>)}
+    </ol>
+  </section>}
+  <RelatedLinks heading={copy.relatedProjects} links={detail.projects} />
+</article>

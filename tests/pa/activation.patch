@@ -1,0 +1,125 @@
+diff --git a/scripts/validate.ts b/scripts/validate.ts
+index b03b461..20a5dd4 100644
+--- a/scripts/validate.ts
++++ b/scripts/validate.ts
+@@ -2,6 +2,7 @@ import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+ import { join } from 'node:path';
+ import type { RecordBase, RegistryEvent, RouteHistory } from '../src/lib/types';
+ import { validateDataset, validateAssets } from '../src/lib/validate';
++import { getPaOutputScope } from '../src/components/projects/output-scope';
+ import { buildRoutes } from '../src/lib/routes';
+ import { validatePublicSourceGate } from './public-gate';
+ import { getCanonicalEntities, getOutputManifest, getRegistryView, getRouteManifest } from '../src/lib/canonical';
+@@ -23,7 +24,7 @@ const routes = buildRoutes(records, history);
+ const canonical = getCanonicalEntities(records);
+ const registryView = getRegistryView(records, registry);
+ const routeManifest = getRouteManifest(records, history);
+-const outputManifest = getOutputManifest(routeManifest);
++const outputManifest = getOutputManifest(routeManifest, getPaOutputScope(routeManifest));
+ writeFileSync('artifacts/route-manifest.json', JSON.stringify({ generatedFrom: 'canonical adapter', routes: routeManifest }, null, 2) + '\n');
+ writeFileSync('artifacts/canonical-entities.json', JSON.stringify(canonical, null, 2) + '\n');
+ writeFileSync('artifacts/registry-view.json', JSON.stringify({ activeIds: registryView.activeIds, retiredIds: registryView.retiredIds }, null, 2) + '\n');
+diff --git a/src/pages/archive/[slug].astro b/src/pages/archive/[slug].astro
+new file mode 100644
+index 0000000..6af2cf7
+--- /dev/null
++++ b/src/pages/archive/[slug].astro
+@@ -0,0 +1,8 @@
++---
++import PaPage from '../../components/projects/PaPage.astro';
++import { detailPages } from '../../components/projects/route-pages';
++export function getStaticPaths() {
++  return detailPages('en', 'archive');
++}
++---
++<PaPage {...Astro.props} />
+diff --git a/src/pages/archive/index.astro b/src/pages/archive/index.astro
+new file mode 100644
+index 0000000..4a29dd4
+--- /dev/null
++++ b/src/pages/archive/index.astro
+@@ -0,0 +1,6 @@
++---
++import PaPage from '../../components/projects/PaPage.astro';
++import { indexPage } from '../../components/projects/route-pages';
++const props = indexPage('en', 'archive');
++---
++<PaPage {...props} />
+diff --git a/src/pages/projects/[slug].astro b/src/pages/projects/[slug].astro
+new file mode 100644
+index 0000000..8b134a4
+--- /dev/null
++++ b/src/pages/projects/[slug].astro
+@@ -0,0 +1,8 @@
++---
++import PaPage from '../../components/projects/PaPage.astro';
++import { detailPages } from '../../components/projects/route-pages';
++export function getStaticPaths() {
++  return detailPages('en', 'projects');
++}
++---
++<PaPage {...Astro.props} />
+diff --git a/src/pages/projects/index.astro b/src/pages/projects/index.astro
+new file mode 100644
+index 0000000..9b16911
+--- /dev/null
++++ b/src/pages/projects/index.astro
+@@ -0,0 +1,6 @@
++---
++import PaPage from '../../components/projects/PaPage.astro';
++import { indexPage } from '../../components/projects/route-pages';
++const props = indexPage('en', 'projects');
++---
++<PaPage {...props} />
+diff --git a/src/pages/zh/archive/[slug].astro b/src/pages/zh/archive/[slug].astro
+new file mode 100644
+index 0000000..acbf2ce
+--- /dev/null
++++ b/src/pages/zh/archive/[slug].astro
+@@ -0,0 +1,8 @@
++---
++import PaPage from '../../../components/projects/PaPage.astro';
++import { detailPages } from '../../../components/projects/route-pages';
++export function getStaticPaths() {
++  return detailPages('zh', 'archive');
++}
++---
++<PaPage {...Astro.props} />
+diff --git a/src/pages/zh/archive/index.astro b/src/pages/zh/archive/index.astro
+new file mode 100644
+index 0000000..f6d1f54
+--- /dev/null
++++ b/src/pages/zh/archive/index.astro
+@@ -0,0 +1,6 @@
++---
++import PaPage from '../../../components/projects/PaPage.astro';
++import { indexPage } from '../../../components/projects/route-pages';
++const props = indexPage('zh', 'archive');
++---
++<PaPage {...props} />
+diff --git a/src/pages/zh/projects/[slug].astro b/src/pages/zh/projects/[slug].astro
+new file mode 100644
+index 0000000..d6ff95e
+--- /dev/null
++++ b/src/pages/zh/projects/[slug].astro
+@@ -0,0 +1,8 @@
++---
++import PaPage from '../../../components/projects/PaPage.astro';
++import { detailPages } from '../../../components/projects/route-pages';
++export function getStaticPaths() {
++  return detailPages('zh', 'projects');
++}
++---
++<PaPage {...Astro.props} />
+diff --git a/src/pages/zh/projects/index.astro b/src/pages/zh/projects/index.astro
+new file mode 100644
+index 0000000..967c8d9
+--- /dev/null
++++ b/src/pages/zh/projects/index.astro
+@@ -0,0 +1,6 @@
++---
++import PaPage from '../../../components/projects/PaPage.astro';
++import { indexPage } from '../../../components/projects/route-pages';
++const props = indexPage('zh', 'projects');
++---
++<PaPage {...props} />

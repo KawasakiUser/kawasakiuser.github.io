@@ -1,0 +1,11 @@
+---
+import type { LinkView } from './page-model';
+interface Props { heading: string; links: LinkView[] }
+const { heading, links } = Astro.props;
+---
+{links.length > 0 && <section class="pa-section">
+  <h2>{heading}</h2>
+  <ul class="pa-links">
+    {links.map((link) => <li><a href={link.href} lang={link.locale}>{link.title}</a></li>)}
+  </ul>
+</section>}
