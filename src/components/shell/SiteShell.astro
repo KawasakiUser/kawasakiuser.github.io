@@ -4,27 +4,39 @@ interface Props {
   notesHref?: string | null;
 }
 const { locale, notesHref = null } = Astro.props;
+const path = Astro.url.pathname;
+const prefix = locale === 'zh' ? '/zh' : '';
+const peerPrefix = locale === 'zh' ? '' : '/zh';
+const section = path.replace(/^\/zh(?=\/)/, '').split('/')[1] ?? '';
+const peerPath = path.startsWith('/zh/') ? path.slice(3) : '/zh' + path;
+const indexSections = new Set(['projects', 'archive', 'notes', 'about']);
+const indexPath = (name: string) => prefix + '/' + name + '/';
+const directPeer = path === '/' || path === '/zh/' ||
+  (indexSections.has(section) && path.split('/').filter(Boolean).length === (locale === 'zh' ? 2 : 1)) ||
+  path.includes('/projects/foundation-fixture/');
+const languageTarget = directPeer ? peerPath : (indexSections.has(section) ? peerPrefix + '/' + section + '/' : peerPrefix + '/');
+const languageFallback = !directPeer && indexSections.has(section);
 const isZh = locale === 'zh';
 const labels = isZh
-  ? { skip: '跳到主要内容', nav: '主导航', home: '首页', projects: '项目', archive: '档案', notes: '笔记', about: '关于', switch: 'English', switchHref: '/', footer: '页脚导航' }
-  : { skip: 'Skip to main content', nav: 'Primary navigation', home: 'Home', projects: 'Projects', archive: 'Archive', notes: 'Notes', about: 'About', switch: '中文', switchHref: '/zh/', footer: 'Footer navigation' };
+  ? { skip: '跳到主要内容', nav: '主导航', home: '首页', projects: '项目', archive: '档案', notes: '笔记', about: '关于', switch: 'English', switchHref: languageTarget, footer: '页脚导航' }
+  : { skip: 'Skip to main content', nav: 'Primary navigation', home: 'Home', projects: 'Projects', archive: 'Archive', notes: 'Notes', about: 'About', switch: '中文', switchHref: languageTarget, footer: 'Footer navigation' };
 ---
 <a class="skip-link" href="#main">{labels.skip}</a>
 <header class="site-header">
   <a class="identity" href={isZh ? '/zh/' : '/'} aria-label={isZh ? 'ShiJie Wang 首页' : 'ShiJie Wang home'}>ShiJie Wang</a>
   <nav aria-label={labels.nav}>
-    <a href={isZh ? '/zh/#projects' : '/#projects'}>{labels.projects}</a>
-    <a href={isZh ? '/zh/#archive' : '/#archive'}>{labels.archive}</a>
-    {notesHref ? <a href={notesHref}>{labels.notes}</a> : <span class="nav-pending" aria-disabled="true">{labels.notes}</span>}
-    <a href={isZh ? '/zh/#about' : '/#about'}>{labels.about}</a>
-    <a class="locale-switch" href={labels.switchHref} lang={isZh ? 'en' : 'zh'}>{labels.switch}</a>
+    <a href={indexPath('projects')}>{labels.projects}</a>
+    <a href={indexPath('archive')}>{labels.archive}</a>
+    <a href={indexPath('notes')}>{labels.notes}</a>
+    <a href={indexPath('about')}>{labels.about}</a>
+    <a class="locale-switch" href={labels.switchHref} lang={isZh ? 'en' : 'zh'} aria-label={languageFallback ? (isZh ? 'English section index; translation unavailable' : '中文栏目目录；该页面没有已发布的翻译') : undefined}>{labels.switch}{languageFallback ? (isZh ? ' · index' : ' · 目录') : ''}</a>
   </nav>
 </header>
 <slot />
 <footer class="site-footer" aria-label={labels.footer}>
   <nav aria-label={labels.footer}>
     <a href={isZh ? '/zh/' : '/'}>{labels.home}</a>
-    <a href={isZh ? '/zh/#about' : '/#about'}>{labels.about}</a>
+    <a href={indexPath('about')}>{labels.about}</a>
   </nav>
 </footer>
 

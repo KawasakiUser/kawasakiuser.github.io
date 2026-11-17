@@ -1,0 +1,8 @@
+---
+import AboutPage from '../../../components/about/AboutPage.astro';
+import { makeAboutView } from '../../../components/about/page-model';
+import { loadIntegrationSnapshot } from '../../../lib/integration';
+
+const view = makeAboutView(loadIntegrationSnapshot(), 'zh');
+---
+<AboutPage locale="zh" view={view} />

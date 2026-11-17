@@ -1,0 +1,9 @@
+---
+import NotesIndex from '../../../src/components/notes/NotesIndex.astro';
+import { notesIndex } from '../../../src/lib/science-render/views';
+import { loadNotesCandidate } from '../../../src/lib/science-render/candidate-runtime';
+const locale = 'en';
+const { snapshot, activePaths } = loadNotesCandidate();
+const entries = notesIndex(snapshot, locale, activePaths);
+---
+<NotesIndex locale={locale} entries={entries} />

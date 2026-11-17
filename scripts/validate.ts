@@ -5,6 +5,8 @@ import { validateDataset, validateAssets } from '../src/lib/validate';
 import { buildRoutes } from '../src/lib/routes';
 import { validatePublicSourceGate } from './public-gate';
 import { getCanonicalEntities, getOutputManifest, getRegistryView, getRouteManifest } from '../src/lib/canonical';
+import { getCompositeOutputScope } from '../src/components/composite/output-scope';
+import { renderScience } from '../src/lib/science-render/render';
 
 function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, 'utf8')) as T;
@@ -23,7 +25,22 @@ const routes = buildRoutes(records, history);
 const canonical = getCanonicalEntities(records);
 const registryView = getRegistryView(records, registry);
 const routeManifest = getRouteManifest(records, history);
-const outputManifest = getOutputManifest(routeManifest);
+const compositeScope = getCompositeOutputScope(routeManifest);
+const outputManifest = getOutputManifest(routeManifest, compositeScope);
+// Fail closed before Astro compilation: validate every approved Notes body via
+// the bounded data-only AST/TeX renderer. Unapproved MDX remains rejected.
+for (const record of records) {
+  if (record.entity === 'Note' && record.publicationStatus === 'Published') {
+    renderScience(record.body ?? '', {
+      locale: record.locale,
+      assets: {},
+      approvedLinks: new Set(outputManifest.approvedRoutes)
+    });
+  }
+}
+writeFileSync('artifacts/notes-candidate.json', JSON.stringify({
+  routes: routeManifest, scope: compositeScope, assets: {}, mdxApprovals: {}
+}, null, 2) + '\n');
 writeFileSync('artifacts/route-manifest.json', JSON.stringify({ generatedFrom: 'canonical adapter', routes: routeManifest }, null, 2) + '\n');
 writeFileSync('artifacts/canonical-entities.json', JSON.stringify(canonical, null, 2) + '\n');
 writeFileSync('artifacts/registry-view.json', JSON.stringify({ activeIds: registryView.activeIds, retiredIds: registryView.retiredIds }, null, 2) + '\n');
