@@ -5,13 +5,15 @@ import { notesIndexPath } from '../../lib/science-render/views';
 
 interface Props {
   locale: Locale;
+  fallback?: boolean;
+  localePeer?: string;
   title: string;
   titleLocale?: Locale;
   description?: string;
   canonical?: string;
   alternates?: { locale: Locale; path: string }[];
 }
-const { locale, title, titleLocale = locale, description, canonical, alternates = [] } = Astro.props;
+const { locale, fallback = false, localePeer, title, titleLocale = locale, description, canonical, alternates = [] } = Astro.props;
 const site = Astro.site;
 const url = (path: string) => {
   if (!site) throw new Error('NOTES_METADATA: canonical site missing');
@@ -19,18 +21,18 @@ const url = (path: string) => {
 };
 ---
 <!doctype html>
-<html lang={locale}>
+<html lang={fallback ? titleLocale : locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title lang={titleLocale}>{title} · ShiJie Wang</title>
     {description && <meta name="description" content={description} />}
-    <meta name="robots" content="noindex" />
+    <meta name="robots" content={fallback ? 'noindex,follow' : 'noindex'} />
     {canonical && <link rel="canonical" href={url(canonical)} />}
     {alternates.map(({ locale: language, path }) => <link rel="alternate" hreflang={language} href={url(path)} />)}
   </head>
-  <body>
-    <SiteShell locale={locale} notesHref={notesIndexPath(locale)}>
+  <body lang={fallback ? locale : undefined}>
+    <SiteShell locale={locale} localePeer={localePeer} notesHref={notesIndexPath(locale)}>
       <slot />
     </SiteShell>
   </body>

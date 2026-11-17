@@ -21,9 +21,10 @@ const reading = note ? renderScience(note.body, { ...science, locale: bodyLocale
 const notice = model.state === 'withdrawn' ? labels.withdrawn : labels.tombstone;
 const alternate = model.alternates.find((entry) => entry.locale !== locale);
 const title = note?.title ?? notice;
+const fallback = model.state === 'source-fallback';
 const related = model.related ?? [];
 ---
-<NotesFrame locale={locale} title={title} titleLocale={bodyLocale} description={model.state === 'page' ? note?.summary : undefined}
+<NotesFrame locale={locale} fallback={fallback} localePeer={fallback ? model.canonical : alternate?.path} title={title} titleLocale={bodyLocale} description={model.state === 'page' ? note?.summary : undefined}
   canonical={model.canonical} alternates={model.alternates}>
   <main id="main" class="notes-surface" tabindex="-1">
     <div class="notes-reader">

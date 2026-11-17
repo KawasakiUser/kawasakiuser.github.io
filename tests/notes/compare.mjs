@@ -18,9 +18,15 @@ mkdirSync(out, { recursive: true });
 const css = readFileSync('src/components/notes/notes.css', 'utf8');
 const fixture = JSON.parse(readFileSync('tests/notes/fixtures/assets.json', 'utf8'));
 const assets = Object.fromEntries(Object.entries(fixture).map(([key, { href, mime }]) => [key, { href, mime }]));
-const fixtures = ['en', 'zh'].map((locale) => ({
-  locale, source: readFileSync('tests/notes/fixtures/geometry-' + locale + '.md', 'utf8')
-}));
+const integrated = process.env.NOTES_INT2_RECORDS;
+const fixtures = integrated
+  ? JSON.parse(readFileSync(integrated, 'utf8')).filter(({ permanentId }) => permanentId === 'NTE-0101')
+    .map(({ locale, body }) => ({ locale, source: body }))
+  : ['en', 'zh'].map((locale) => ({
+    locale, source: readFileSync('tests/notes/fixtures/geometry-' + locale + '.md', 'utf8')
+  }));
+assert.deepEqual(fixtures.map(({ locale }) => locale), ['en', 'zh']);
+const approvedLinks = new Set(['/notes/', '/zh/notes/', '/archive/', '/zh/archive/']);
 const lock = JSON.parse(readFileSync('package-lock.json', 'utf8')).packages;
 const versions = Object.fromEntries(['katex', '@mathjax/src', 'speech-rule-engine'].map((name) =>
   [name, lock['node_modules/' + name].version]));
@@ -30,16 +36,18 @@ const document = mathjax.document('', { InputJax: input });
 const serializer = new SerializedMmlVisitor();
 function mathJax(tex, display) {
   const node = document.convert(tex, { display, end: STATE.CONVERT });
-  node.walkTree(({ attributes }) => {
-    attributes?.unset('data-latex');
-    attributes?.unset('data-latex-item');
+  node.walkTree((item) => {
+    item.attributes?.unset('data-latex');
+    item.attributes?.unset('data-latex-item');
+    // The native output retains ℏ; MathJax's own font-variant marker is unnecessary.
+    item.removeProperty('variantForm');
   });
   return serializer.visitTree(node, document);
 }
 const engines = { katex: undefined, mathjax: mathJax };
 const results = {};
 for (const [engine, renderer] of Object.entries(engines)) {
-  const render = ({ source, locale }) => renderScience(source, { locale, assets, renderer }).html;
+  const render = ({ source, locale }) => renderScience(source, { locale, assets, renderer, approvedLinks }).html;
   const start = performance.now();
   const output = fixtures.map(render);
   const firstMs = performance.now() - start;
@@ -63,9 +71,15 @@ for (const [engine, renderer] of Object.entries(engines)) {
     const blocks = body.match(/<math\b[\s\S]*?<\/math>/g);
     const count = blocks.length;
     assert.ok(count > 10);
-    assert.equal((body.match(/<math\b[^>]*display="block"/g) ?? []).length, 2);
+    assert.equal((body.match(/<math\b[^>]*display="block"/g) ?? []).length, integrated ? 3 : 2);
     assert.ok(body.includes('href="#eq-kerr"') && body.includes('id="eq-kerr"'));
     assert.ok(body.includes('href="#eq-einstein"') && body.includes('id="eq-einstein"'));
+    if (integrated) {
+      assert.equal(count, 19);
+      assert.ok(body.includes('href="#eq-dispersion"') && body.includes('id="eq-dispersion"'));
+      const quantum = blocks.filter((item) => /display="block"/.test(item))[2];
+      assert.ok(quantum.includes('ℏ') && quantum.includes('ψ') && quantum.includes('ω'));
+    }
     assert.ok(!/<script|<svg/i.test(body));
     const sentences = {};
     const speechLocale = locale === 'zh' ? 'zh' : 'en';
@@ -87,5 +101,5 @@ for (const [engine, renderer] of Object.entries(engines)) {
       '</style><main class="notes-surface"><article class="notes-reader scientific-prose"><h1>' + title + '</h1>' + body + '</article></main></html>');
   }
 }
-writeFileSync(join(out, 'comparison.json'), JSON.stringify({ node: process.version, versions, results }, null, 2) + '\n');
+writeFileSync(join(out, 'comparison.json'), JSON.stringify({ node: process.version, integrated: Boolean(integrated), versions, results }, null, 2) + '\n');
 console.log(JSON.stringify({ versions, results }, null, 2));

@@ -10,7 +10,7 @@ const commands = new Set((
   'Gamma Delta Theta Lambda Xi Pi Sigma Phi Psi Omega ' +
   'mathrm mathbf mathcal mathbb mathit mathsf mathtt operatorname text overline underline hat widehat bar vec dot ddot ' +
   'le leq ge geq neq approx sim equiv propto to mapsto rightarrow leftarrow leftrightarrow Rightarrow Leftrightarrow ' +
-  'in notin subset subseteq cup cap forall exists ell ldots cdots vdots ddots langle rangle lvert rvert langle rangle ' +
+  'in notin subset subseteq cup cap forall exists ell hbar ldots cdots vdots ddots langle rangle lvert rvert langle rangle ' +
   'lbrace rbrace vert Vert space colon'
 ).split(' '));
 const environments = new Set(['aligned', 'gathered', 'split', 'matrix', 'pmatrix', 'bmatrix', 'vmatrix', 'cases']);

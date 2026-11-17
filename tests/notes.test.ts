@@ -70,5 +70,6 @@ test('index and detail selection enforce real routes and source identity', () =>
   assert.equal(page?.note?.locale, 'en');
   assert.equal(page?.canonical, '/notes/locale-test/');
   assert.deepEqual(page?.alternates, []);
+  assert.throws(() => noteDetail(testSnapshot, fallback, new Set([fallback.path])), /NOTES_SOURCE/);
   assert.throws(() => noteDetail(testSnapshot, { ...fallback, sourceCanonical: '/notes/incorrect/' }, paths), /NOTES_SOURCE/);
 });
