@@ -11,7 +11,7 @@ const source = process.cwd();
 interface CommandResult { status: number | null; text: string }
 function prepare(): string {
   const dir = mkdtempSync(join(tmpdir(), 'g6a-actual-input-'));
-  for (const item of ['src', 'scripts', 'package.json', 'package-lock.json', 'astro.config.mjs', 'tsconfig.json']) {
+  for (const item of ['src', 'scripts', 'package.json', 'package-lock.json', 'astro.config.mjs', 'tsconfig.json', '.gitignore']) {
     cpSync(resolve(source, item), join(dir, item), { recursive: true });
   }
   if (!existsSync(resolve(source, 'node_modules'))) throw new Error('Install dependencies with npm ci first');
@@ -133,7 +133,45 @@ caseRun('P1-03 withdrawn Work needs notice', (dir) => {
   writeFileSync(join(dir, path), JSON.stringify(record));
   updateAllowlist(dir, path);
 }, 'WITHDRAWN_NOTICE');
+caseRun('QA-INT2-04 outside-root staged Draft', (dir) => {
+  const path = 'docs/authoring/qa-synthetic-draft.md';
+  mkdirSync(join(dir, 'docs/authoring'), { recursive: true });
+  writeFileSync(join(dir, path), '---\npublicationStatus: Draft\n---\nSynthetic draft');
+  assert.equal(spawnSync('git', ['init', '-q'], { cwd: dir }).status, 0);
+  assert.equal(spawnSync('git', ['add', '--', path], { cwd: dir }).status, 0);
+}, 'PRIVATE_IN_PUBLIC_REPO');
+caseRun('QA-INT2-04 ignored private path', (dir) => {
+  mkdirSync(join(dir, 'private'));
+  writeFileSync(join(dir, 'private/draft.mdx'), 'Synthetic MDX draft');
+}, 'PRIVATE_IN_PUBLIC_REPO');
+caseRun('QA-INT2-04 case variant JSON', (dir) => {
+  writeFileSync(join(dir, 'src/data/Registry.JSON'), '{}');
+}, 'PUBLIC_REPO_UNLISTED');
+caseRun('QA-INT2-04 unregistered hidden root file', (dir) => {
+  writeFileSync(join(dir, '.synthetic-secret'), 'Synthetic secret');
+}, 'PUBLIC_REPO_UNLISTED');
+caseRun('QA-INT2-04 unregistered raster outside asset roots', (dir) => {
+  writeFileSync(join(dir, 'synthetic.png'), 'Synthetic unapproved bytes');
+}, 'PUBLIC_REPO_UNLISTED');
+caseRun('QA-INT2-04 outside-root symlink', (dir) => {
+  symlinkSync('src/data', join(dir, 'Alias'));
+}, 'PUBLIC_SYMLINK');
+caseRun('QA-INT2-04 force-staged generated file', (dir) => {
+  const path = 'artifacts/synthetic-draft.json';
+  mkdirSync(join(dir, 'artifacts'));
+  writeFileSync(join(dir, path), '{}');
+  assert.equal(spawnSync('git', ['init', '-q'], { cwd: dir }).status, 0);
+  assert.equal(spawnSync('git', ['add', '-f', '--', path], { cwd: dir }).status, 0);
+}, 'PUBLIC_REPO_GENERATED');
+
+function approveSyntheticTestPath(dir: string, path: string): void {
+  const inventoryFile = join(dir, 'scripts/public-repo-paths.json');
+  const inventory = JSON.parse(readFileSync(inventoryFile, 'utf8')) as Record<string, string | null>;
+  inventory[path] = null;
+  writeFileSync(inventoryFile, JSON.stringify(inventory));
+}
 buildOnlyCase('SEC-07 extra static page', (dir) => {
+  approveSyntheticTestPath(dir, 'src/pages/rogue/index.astro');
   mkdirSync(join(dir, 'src/pages/rogue'), { recursive: true });
   writeFileSync(join(dir, 'src/pages/rogue/index.astro'), '<html><body>rogue</body></html>');
 }, 'Unexpected build output paths');
@@ -142,4 +180,39 @@ buildOnlyCase('SEC-08 executable output', (dir) => {
   const source = readFileSync(path, 'utf8');
   writeFileSync(path, source.replace('<body>', '<body><script>alert(1)</script>'));
 }, 'Build output contains executable or private content');
+buildOnlyCase('QA-INT2-05 encoded href through Astro build', (dir) => {
+  const path = join(dir, 'src/pages/index.astro');
+  const source = readFileSync(path, 'utf8');
+  writeFileSync(path, source.replace('</body>', '<a href="java&#x73;cript:void(0)">QA</a></body>'));
+}, 'OUTPUT_URL');
+
+const scannerControl = prepare();
+try {
+  const build = run(scannerControl, 'build');
+  assert.equal(build.status, 0, build.text);
+  const out = join(scannerControl, 'dist/index.html');
+  const original = readFileSync(out, 'utf8');
+  const emit = (markup: string) => writeFileSync(out, original.replace('</body>', markup + '</body>'));
+  emit('<a href="https://example.org/a%20b?x=1&amp;y=2">HTTPS</a><a href="mailto:qa@example.org">Mail</a><a href="tel:+1234">Tel</a><a href="#main">Skip</a><img src="/test.png" srcset="/test.png 1x, /test2.png 2x" alt="">');
+  const positive = run(scannerControl, 'scan:build');
+  assert.equal(positive.status, 0, positive.text);
+  console.log('PASS QA-INT2-05 safe URL controls through actual scanner');
+  for (const [name, markup] of [
+    ['href entity', '<a href=java&#x73;cript:void(0)>QA</a>'],
+    ['href mixed case/whitespace', '<a HREF="  JaVa&#9;ScRiPt&colon;void(0)">QA</a>'],
+    ['href percent', '<a href="java%73cript%3avoid(0)">QA</a>'],
+    ['src executable data', '<img SRC="d&#97;ta:text/html,synthetic" alt="">'],
+    ['srcset secondary URL', '<img srcset="/safe.png 1x, java&#x73;cript:void(0) 2x" alt="">'],
+    ['formaction', '<button formaction="javascript&colon;void(0)">QA</button>'],
+    ['SVG xlink:href', '<svg><a xlink:href="java&#x73;cript:void(0)"></a></svg>'],
+    ['poster', '<video poster="vb&#x73;cript&colon;void(0)"></video>'],
+    ['ping URL list', '<a href="/" ping="/safe java&#x73;cript:void(0)">QA</a>']
+  ] as const) {
+    emit(markup);
+    const result = run(scannerControl, 'scan:build');
+    assert.notEqual(result.status, 0, result.text);
+    assert.ok(result.text.includes('OUTPUT_URL'), result.text);
+    console.log('PASS QA-INT2-05 actual scanner negative: ' + name);
+  }
+} finally { rmSync(scannerControl, { recursive: true, force: true }); }
 console.log('PASS all real-input CLI negative integration cases');

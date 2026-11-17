@@ -1,30 +1,51 @@
 ---
 interface Props {
   locale: 'en' | 'zh';
+  localePeer?: string;
   notesHref?: string | null;
 }
-const { locale, notesHref = null } = Astro.props;
+const { locale, localePeer } = Astro.props;
+const path = Astro.url.pathname;
+const prefix = locale === 'zh' ? '/zh' : '';
+const peerPrefix = locale === 'zh' ? '' : '/zh';
+const section = path.replace(/^\/zh(?=\/)/, '').split('/')[1] ?? '';
+const peerPath = path.startsWith('/zh/') ? path.slice(3) : '/zh' + path;
+const indexSections = new Set(['projects', 'archive', 'notes', 'about']);
+const indexPath = (name: string) => prefix + '/' + name + '/';
+const directPeer = path === '/' || path === '/zh/' ||
+  (indexSections.has(section) && path.split('/').filter(Boolean).length === (locale === 'zh' ? 2 : 1));
+const languageTarget = localePeer ?? (directPeer ? peerPath : (indexSections.has(section) ? peerPrefix + '/' + section + '/' : peerPrefix + '/'));
+const languageFallback = !localePeer && !directPeer && indexSections.has(section);
 const isZh = locale === 'zh';
 const labels = isZh
-  ? { skip: '跳到主要内容', nav: '主导航', home: '首页', projects: '项目', archive: '档案', notes: '笔记', about: '关于', switch: 'English', switchHref: '/', footer: '页脚导航' }
-  : { skip: 'Skip to main content', nav: 'Primary navigation', home: 'Home', projects: 'Projects', archive: 'Archive', notes: 'Notes', about: 'About', switch: '中文', switchHref: '/zh/', footer: 'Footer navigation' };
+  ? { skip: '跳到主要内容', nav: '主导航', menu: '菜单', home: '首页', projects: '项目', archive: '档案', notes: '笔记', about: '关于', switch: 'English', footer: '页脚导航' }
+  : { skip: 'Skip to main content', nav: 'Primary navigation', menu: 'Menu', home: 'Home', projects: 'Projects', archive: 'Archive', notes: 'Notes', about: 'About', switch: '中文', footer: 'Footer navigation' };
+const homePath = isZh ? '/zh/' : '/';
+const sections = ['projects', 'archive', 'notes', 'about'] as const;
+const switchLabel = languageFallback
+  ? (isZh ? 'English section index; translation unavailable' : '中文栏目目录；该页面没有已发布的翻译')
+  : undefined;
 ---
 <a class="skip-link" href="#main">{labels.skip}</a>
 <header class="site-header">
-  <a class="identity" href={isZh ? '/zh/' : '/'} aria-label={isZh ? 'ShiJie Wang 首页' : 'ShiJie Wang home'}>ShiJie Wang</a>
-  <nav aria-label={labels.nav}>
-    <a href={isZh ? '/zh/#projects' : '/#projects'}>{labels.projects}</a>
-    <a href={isZh ? '/zh/#archive' : '/#archive'}>{labels.archive}</a>
-    {notesHref ? <a href={notesHref}>{labels.notes}</a> : <span class="nav-pending" aria-disabled="true">{labels.notes}</span>}
-    <a href={isZh ? '/zh/#about' : '/#about'}>{labels.about}</a>
-    <a class="locale-switch" href={labels.switchHref} lang={isZh ? 'en' : 'zh'}>{labels.switch}</a>
-  </nav>
+  <a class="identity" href={homePath} aria-current={path === homePath ? 'page' : undefined} aria-label={isZh ? 'ShiJie Wang 首页' : 'ShiJie Wang home'}>ShiJie Wang</a>
+  <button class="menu-toggle" type="button" popovertarget="mobile-navigation">{labels.menu}</button>
+  {[false, true].map((mobile) => (
+    <nav class={mobile ? 'mobile-nav' : 'desktop-nav'} id={mobile ? 'mobile-navigation' : undefined}
+      popover={mobile ? 'auto' : undefined} aria-label={labels.nav}>
+      {sections.map((name, index) => (
+        <a href={indexPath(name)} autofocus={mobile && index === 0}
+          aria-current={path === indexPath(name) ? 'page' : section === name ? 'location' : undefined}>{labels[name]}</a>
+      ))}
+      <a class="locale-switch" href={languageTarget} lang={isZh ? 'en' : 'zh'} aria-label={switchLabel}>{labels.switch}{languageFallback ? (isZh ? ' · index' : ' · 目录') : ''}</a>
+    </nav>
+  ))}
 </header>
 <slot />
 <footer class="site-footer" aria-label={labels.footer}>
   <nav aria-label={labels.footer}>
     <a href={isZh ? '/zh/' : '/'}>{labels.home}</a>
-    <a href={isZh ? '/zh/#about' : '/#about'}>{labels.about}</a>
+    <a href={indexPath('about')}>{labels.about}</a>
   </nav>
 </footer>
 
@@ -37,14 +58,34 @@ const labels = isZh
   .skip-link:focus { top: 1rem; }
   .site-header { display: flex; align-items: center; justify-content: space-between; gap: 2rem; min-height: 5rem; padding: 1.4rem clamp(1.2rem, 5vw, 5.5rem); border-bottom: 1px solid rgba(32,32,30,.2); }
   .identity { font-size: 1.15rem; text-decoration: none; letter-spacing: .02em; }
-  .site-header nav, .site-footer nav { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem 1.35rem; font-size: .95rem; }
+  .desktop-nav, .site-footer nav { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem 1.35rem; font-size: .95rem; }
   .site-header nav a, .site-footer nav a { text-decoration: none; }
   .site-header nav a:hover, .site-header nav a:focus-visible, .site-footer nav a:hover, .site-footer nav a:focus-visible { text-decoration: underline; text-underline-offset: .2em; }
-  .nav-pending { color: #625b52; }
+  .site-header [aria-current] { text-decoration: underline; text-underline-offset: .22em; }
+  .menu-toggle, .mobile-nav { display: none; }
   .locale-switch { border-left: 1px solid rgba(32,32,30,.35); padding-left: 1.35rem; }
   .site-footer { display: flex; justify-content: flex-end; padding: 2rem clamp(1.2rem, 5vw, 5.5rem); border-top: 1px solid rgba(32,32,30,.2); }
   :global(:focus-visible) { outline: 3px solid #182a3d; outline-offset: 3px; }
-  @media (max-width: 600px) { .site-header { align-items: flex-start; flex-direction: column; gap: .9rem; } .site-header nav { gap: .65rem 1rem; } .locale-switch { padding-left: 1rem; } }
-  @media (forced-colors: active) { .site-header, .site-footer { border-color: CanvasText; } .skip-link { forced-color-adjust: auto; } }
+  @media (max-width: 600px) {
+    .site-header { gap: 1rem; }
+    .desktop-nav { display: none; }
+    .menu-toggle { display: inline-block; font: inherit; color: inherit; background: transparent; border: 1px solid currentColor; padding: .6rem .75rem; }
+    .mobile-nav:popover-open {
+      display: grid; gap: .25rem; position: fixed; inset: 4.8rem 1.2rem auto auto; margin: 0;
+      max-inline-size: calc(100% - 2.4rem); max-block-size: calc(100dvh - 5.8rem); overflow: auto;
+      padding: .6rem; border: 1px solid currentColor; background: #f7f4ed; color: #20201e;
+    }
+    .mobile-nav a { padding: .45rem .6rem; }
+    .mobile-nav .locale-switch { border-left: 0; }
+    @supports not selector(:popover-open) {
+      .menu-toggle { display: none; }
+      .site-header { align-items: flex-start; flex-direction: column; }
+      .desktop-nav { display: flex; }
+    }
+  }
+  @media (forced-colors: active) {
+    .site-header, .site-footer { border-color: CanvasText; }
+    :global(:focus-visible) { outline-color: Highlight; }
+  }
   @media (prefers-reduced-motion: reduce) { :global(*) { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 </style>

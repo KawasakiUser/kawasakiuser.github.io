@@ -48,7 +48,7 @@ const copy = isZh
     };
 ---
 <SiteShell locale={locale} notesHref={notes.length > 0 ? (isZh ? '/zh/#notes' : '/#notes') : null}>
-  <main id="main">
+  <main id="main" tabindex="-1">
     <section id="cover" class="home-section cover-section" aria-labelledby="cover-heading">
       <div class="cover-slot" aria-label={copy.cover}>
         <span class="section-number">01</span>
@@ -118,6 +118,8 @@ const copy = isZh
   .record-kicker { opacity: .72; }
   .text-link, .about-cta { display: inline-block; margin-top: 1rem; text-underline-offset: .25em; text-decoration-thickness: 1px; }
   .notes-section .text-link { color: #fafaf7; }
+  .notes-section .text-link:focus-visible { outline-color: #fafaf7; }
+  @media (forced-colors: active) { .notes-section .text-link:focus-visible { outline-color: Highlight; } }
   .about-cta { color: #8e303b; }
   .empty-state { margin: 0; }
   .about-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: clamp(2rem, 8vw, 8rem); align-items: start; }

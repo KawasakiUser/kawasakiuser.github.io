@@ -1,0 +1,30 @@
+import { readFileSync } from 'node:fs';
+import { getOutputManifest, type OutputScope, type RouteManifestEntry } from '../canonical';
+import { loadIntegrationSnapshot } from '../integration';
+import { noteDetail, notesIndexPath } from './views';
+import { scienceOptions, type SciencePolicy } from './science-policy';
+import type { Locale } from '../types';
+
+export interface Candidate extends SciencePolicy {
+  routes: RouteManifestEntry[];
+  scope: OutputScope;
+}
+
+export function loadNotesCandidate() {
+  const candidate = JSON.parse(readFileSync('artifacts/notes-candidate.json', 'utf8')) as Candidate;
+  const snapshot = { ...loadIntegrationSnapshot(), routes: candidate.routes };
+  const activePaths = new Set(getOutputManifest(snapshot.routes, candidate.scope).approvedRoutes);
+  const getScienceOptions = scienceOptions(candidate, snapshot.routes, [...activePaths]);
+  return { snapshot, activePaths, getScienceOptions };
+}
+
+export function getNotesPaths(locale: Locale) {
+  const { snapshot, activePaths } = loadNotesCandidate();
+  return snapshot.routes.filter((route) => route.locale === locale).flatMap((route) => {
+    const model = noteDetail(snapshot, route, activePaths);
+    if (!model) return [];
+    const slug = route.path.slice(notesIndexPath(locale).length, -1);
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error('NOTES_PATH: ' + route.path);
+    return [{ params: { slug }, props: { model } }];
+  });
+}

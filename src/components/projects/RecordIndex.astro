@@ -1,0 +1,34 @@
+---
+import type { Locale } from '../../lib/types';
+import { paLabels } from './labels';
+import type { Card } from './page-model';
+import ProjectMeta from './ProjectMeta.astro';
+interface Props { locale: Locale; family: 'projects' | 'archive'; cards: Card[] }
+const { locale, family, cards } = Astro.props;
+const copy = paLabels(locale);
+const isProjects = family === 'projects';
+---
+<header class="pa-intro">
+  <h1>{copy[family]}</h1>
+  <p>{isProjects ? copy.projectContext : copy.archiveContext}</p>
+</header>
+{cards.length === 0 ?
+  <p class="pa-empty">{isProjects ? copy.emptyProjects : copy.emptyArchive}</p> :
+  <ul class:list={['pa-rows', isProjects ? 'pa-projects' : 'pa-archive']} role="list">
+    {cards.map((card) => <li>
+      <article class="pa-row">
+        {card.date && <p class="pa-row-date"><time datetime={card.date}>{card.date}</time></p>}
+        <div>
+          <h2><a href={card.href}>{card.title}</a></h2>
+          {isProjects && <ProjectMeta locale={locale} type={card.primaryType} lifecycle={card.lifecycle} />}
+          <p>{card.summary}</p>
+          {card.projects.length > 0 && <dl class="pa-associations">
+            <dt>{copy.relatedProjects}</dt>
+            <dd><ul class="pa-links">
+              {card.projects.map((project) => <li><a href={project.href} lang={project.locale}>{project.title}</a></li>)}
+            </ul></dd>
+          </dl>}
+        </div>
+      </article>
+    </li>)}
+  </ul>}

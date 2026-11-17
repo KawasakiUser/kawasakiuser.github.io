@@ -151,7 +151,14 @@ export function getRouteManifest(records: readonly RecordBase[], history: readon
 
   for (const route of routes) {
     if (!entries.some((entry) => entry.path === route.path)) {
-      entries.push({ ...route, state: route.kind, canonical: route.kind === 'page' ? route.path : undefined });
+      const source = route.kind === 'source-fallback'
+        ? resolveLocale(records, route.permanentId, route.locale, history) : undefined;
+      entries.push({
+        ...route,
+        state: route.kind,
+        canonical: route.kind === 'page' ? route.path : undefined,
+        sourceCanonical: source?.kind === 'source-fallback' ? routeFor(source.source) ?? undefined : undefined
+      });
     }
   }
 

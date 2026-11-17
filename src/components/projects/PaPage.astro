@@ -1,0 +1,71 @@
+---
+import SiteShell from '../shell/SiteShell.astro';
+import WorkDetail from '../archive/WorkDetail.astro';
+import type { WorkProvenance } from '../archive/public-provenance';
+import ProjectDetail from './ProjectDetail.astro';
+import RecordIndex from './RecordIndex.astro';
+import { languageName, paLabels } from './labels';
+import type { Card, Detail } from './page-model';
+import type { Locale } from '../../lib/types';
+import './pa.css';
+interface Props {
+  locale: Locale;
+  family: 'projects' | 'archive';
+  notesHref?: string;
+  view: { cards: Card[] } | { detail: Detail; provenance?: WorkProvenance };
+}
+const { locale, family, notesHref, view } = Astro.props;
+const copy = paLabels(locale);
+const detail = 'detail' in view ? view.detail : undefined;
+const record = detail?.record;
+const state = detail?.route.state;
+const history = state === 'tombstone' || state === 'withdrawn';
+const heading = state === 'tombstone' ? copy.tombstone :
+  state === 'withdrawn' ? copy.withdrawn : record?.title ?? copy[family];
+const canonicalPath = state === 'source-fallback' ? detail?.route.sourceCanonical : detail?.route.canonical;
+const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
+const peer = detail?.alternate;
+const indexPath = (locale === 'zh' ? '/zh/' : '/') + family + '/';
+const homeLocale = locale === 'zh' ? 'en' : 'zh';
+const indexPeer = (homeLocale === 'zh' ? '/zh/' : '/') + family + '/';
+---
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>{heading} · ShiJie Wang</title>
+    {canonical && <link rel="canonical" href={canonical} />}
+    {state === 'page' && peer && canonical && <>
+      <link rel="alternate" hreflang={locale} href={canonical} />
+      <link rel="alternate" hreflang={peer.locale} href={new URL(peer.href, Astro.site).href} />
+    </>}
+  </head>
+  <body>
+    <SiteShell locale={locale} notesHref={notesHref} localePeer={peer?.href}>
+      <main class="pa" id="main" tabindex="-1">
+        <div class="pa-content">
+          <p class="pa-fixture">{copy.synthetic}</p>
+          {detail && <nav class="pa-local-nav" aria-label={copy.overview}>
+            <a href={indexPath}>{copy[family]}</a>
+          </nav>}
+          {peer && <p class="pa-language">{copy.translation} <a href={peer.href} hreflang={peer.locale} lang={peer.locale}>{languageName[peer.locale]}</a></p>}
+          {!detail && <p class="pa-language">{copy.translation} <a href={indexPeer} hreflang={homeLocale} lang={homeLocale}>{languageName[homeLocale]}</a></p>}
+          {detail?.source && <aside class="pa-notice">
+            <p>{copy.fallback} <span lang={detail.source.locale}>{languageName[detail.source.locale]}</span>。</p>
+            <a href={detail.source.href} hreflang={detail.source.locale}>{copy.source}</a>
+          </aside>}
+          {history && <section class:list={['pa-notice', state === 'withdrawn' && 'pa-warning']}>
+            <h1>{heading}</h1>
+            <p>{state === 'withdrawn' ? copy.withdrawnDetail : copy.tombstoneDetail}</p>
+          </section>}
+          {'cards' in view && <RecordIndex locale={locale} family={family} cards={view.cards} />}
+          {detail && record && record.entity === 'Project' && <ProjectDetail detail={detail} record={record} />}
+          {detail && record && record.entity === 'ArchiveRecord' &&
+            <WorkDetail detail={detail} record={record} provenance={'provenance' in view ? view.provenance : undefined} />}
+        </div>
+      </main>
+    </SiteShell>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+---
+import PaPage from '../../components/projects/PaPage.astro';
+import { detailPages } from '../../components/projects/route-pages';
+export function getStaticPaths() {
+  return detailPages('en', 'archive');
+}
+---
+<PaPage {...Astro.props} />

@@ -1,0 +1,11 @@
+---
+import type { Locale } from '../../lib/types';
+import { paLabels, projectTerm } from './labels';
+interface Props { locale: Locale; type?: string; lifecycle?: string }
+const { locale, type, lifecycle } = Astro.props;
+const copy = paLabels(locale);
+---
+<dl class="pa-meta">
+  <div><dt>{copy.type}</dt><dd>{projectTerm(locale, 'types', type)}</dd></div>
+  <div><dt>{copy.lifecycle}</dt><dd>{projectTerm(locale, 'lifecycles', lifecycle)}</dd></div>
+</dl>

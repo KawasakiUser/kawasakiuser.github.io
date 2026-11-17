@@ -15,14 +15,32 @@
     "build": "astro build && npm run scan:build",
     "validate:negative": "node --import tsx scripts/negative-integration.ts",
     "verify:delivery": "node --import tsx scripts/verify-delivery-manifest.ts",
-    "prebuild": "npm run validate"
+    "prebuild": "npm run validate",
+    "test:notes:candidate": "node tests/notes/lab.mjs build && node tests/notes/audit.mjs && node tests/notes/lab.mjs negative",
+    "test:notes:renderers": "node --import tsx tests/notes/compare.mjs",
+    "test:notes:int2": "node tests/notes/int2/lab.mjs"
   },
   "dependencies": {
-    "astro": "5.18.2"
+    "astro": "5.18.2",
+    "hast-util-from-html": "2.0.3",
+    "katex": "0.19.1",
+    "rehype-stringify": "10.0.1",
+    "remark-gfm": "4.0.1",
+    "remark-math": "6.0.0",
+    "remark-mdx": "3.1.1",
+    "remark-parse": "11.0.0",
+    "remark-rehype": "11.1.2",
+    "unified": "11.0.5"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.4",
+    "@mathjax/src": "4.1.3",
+    "@types/hast": "3.0.4",
+    "@types/mdast": "4.0.4",
     "@types/node": "^24.10.1",
+    "axe-core": "4.11.1",
+    "playwright-core": "1.58.2",
+    "speech-rule-engine": "5.0.0-rc.4",
     "tsx": "4.20.6",
     "typescript": "5.9.3"
   }

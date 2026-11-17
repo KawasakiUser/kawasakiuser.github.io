@@ -1,0 +1,17 @@
+{
+  "scopeId": "G6B-NOTES-REVIEW-CANDIDATE",
+  "status": "proposed, PCS/SHELL review required for route activation",
+  "approvedRoutes": [
+    { "route": "/", "outputFiles": ["index.html"] },
+    { "route": "/zh/", "outputFiles": ["zh/index.html"] },
+    { "route": "/notes/", "outputFiles": ["notes/index.html", "notes-fixtures/radial.png"] },
+    { "route": "/zh/notes/", "outputFiles": ["zh/notes/index.html"] },
+    { "route": "/notes/note-fixture/", "outputFiles": ["notes/note-fixture/index.html"] },
+    { "route": "/notes/synthetic-geometry/", "outputFiles": ["notes/synthetic-geometry/index.html"] },
+    { "route": "/zh/notes/synthetic-geometry/", "outputFiles": ["zh/notes/synthetic-geometry/index.html"] },
+    { "route": "/notes/synthetic-components/", "outputFiles": ["notes/synthetic-components/index.html"] },
+    { "route": "/notes/synthetic-original/", "outputFiles": ["notes/synthetic-original/index.html"] },
+    { "route": "/zh/notes/synthetic-history/", "outputFiles": ["zh/notes/synthetic-history/index.html"] },
+    { "route": "/notes/synthetic-withdrawn/", "outputFiles": ["notes/synthetic-withdrawn/index.html"] }
+  ]
+}
