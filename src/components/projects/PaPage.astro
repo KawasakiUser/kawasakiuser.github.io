@@ -43,7 +43,7 @@ const indexPeer = (homeLocale === 'zh' ? '/zh/' : '/') + family + '/';
     </>}
   </head>
   <body>
-    <SiteShell locale={locale} notesHref={notesHref}>
+    <SiteShell locale={locale} notesHref={notesHref} localePeer={peer?.href}>
       <main class="pa" id="main" tabindex="-1">
         <div class="pa-content">
           <p class="pa-fixture">{copy.synthetic}</p>

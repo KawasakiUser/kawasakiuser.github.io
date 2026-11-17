@@ -2,6 +2,8 @@ import { lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import { validateOutputManifest, type OutputManifest } from '../src/lib/canonical';
 
+import { validateOutputHtml } from './output-html';
+
 const dist = resolve('dist');
 const manifest = JSON.parse(readFileSync(resolve('artifacts/output-manifest.json'), 'utf8')) as OutputManifest;
 validateOutputManifest(manifest);
@@ -21,9 +23,8 @@ if (JSON.stringify(actual) !== JSON.stringify(allowed)) {
 }
 for (const file of actual.filter((name) => name.endsWith('.html'))) {
   const html = readFileSync(resolve(dist, file), 'utf8');
-  if (!/<meta\s+name="robots"\s+content="noindex"\s*\/?\s*>/i.test(html)) throw new Error('Engineering branch output must remain noindex: ' + file);
-  if (/<script\b|\bon[a-z]+\s*=|SECRET_PRIVATE_DRAFT|PRIVATE_CONTENT|publicationStatus["']?:?\s*["']Draft/i.test(html)) {
-    throw new Error('Build output contains executable or private content: ' + file);
-  }
+  const route = '/' + file.replace(/index\.html$/, '');
+  const fallback = manifest.routeStates.some((entry) => entry.path === route && entry.state === 'source-fallback');
+  validateOutputHtml(html, file, fallback ? 'noindex,follow' : 'noindex');
 }
 console.log('PASS manifest-driven output allowlist: ' + actual.join(', '));

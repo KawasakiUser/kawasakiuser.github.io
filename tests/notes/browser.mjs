@@ -78,21 +78,32 @@ try {
   const history = '/zh/notes/synthetic-history/';
   const withdrawn = '/notes/synthetic-withdrawn/';
   const fallback = '/zh/notes/synthetic-original/';
-  for (const path of [history, withdrawn, fallback, '/zh/notes/never-published/', '/zh/notes/synthetic-components/']) {
+  const int2 = process.env.NOTES_INT2_BROWSER === '1';
+  const states = [history, withdrawn, fallback, '/zh/notes/never-published/', '/zh/notes/synthetic-components/'];
+  if (int2) states.push('/zh/notes/synthetic-withdrawn/', '/zh/notes/synthetic-history-old/',
+    '/notes/synthetic-translated-only/', '/zh/notes/synthetic-translated-only/');
+  for (const path of states) {
     const response = await page.goto(base + path);
     assert.equal(response.status(), expected(path) ? 200 : 404);
     if (expected(path)) {
-      assert.equal(await page.locator('meta[name=robots]').getAttribute('content'), 'noindex');
-      assert.equal(await page.locator('link[hreflang]').count(), 0);
-      if (path === fallback) {
-        assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), origin + '/notes/synthetic-original/');
+      const robots = await page.locator('meta[name=robots]').getAttribute('content');
+      const state = manifest.routeStates.find((route) => route.path === path)?.state;
+      assert.equal(robots, state === 'source-fallback' && int2 ? 'noindex,follow' : 'noindex');
+      if (state !== 'page') assert.equal(await page.locator('link[hreflang]').count(), 0);
+      if (state === 'source-fallback') {
+        assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), origin + path.replace(/^\/zh/, ''));
         assert.equal(await page.locator('article').getAttribute('lang'), 'en');
-        assert.equal(await page.locator('html').getAttribute('lang'), 'zh');
-      } else {
+        if (int2) {
+          assert.equal(await page.locator('html').getAttribute('lang'), 'en');
+          assert.equal(await page.locator('body').getAttribute('lang'), 'zh');
+        } else {
+          assert.equal(await page.locator('html').getAttribute('lang'), 'zh');
+        }
+      } else if (state !== 'page') {
         assert.equal(await page.locator('link[rel=canonical], .scientific-prose').count(), 0);
       }
       await page.setViewportSize({ width: 390, height: 800 });
-      if (screens || path === fallback) await page.screenshot({ fullPage: true, path: join(out, path.split('/').at(-2) + '.png') });
+      if (screens || path === fallback) await page.screenshot({ fullPage: true, path: join(out, path.replace(/^\//, '').replace(/\/$/, '').replaceAll('/', '-') + '.png') });
     }
     records.states[path] = response.status();
   }

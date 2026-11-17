@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [[ "$remote_ref" != refs/heads/g6b/* || "$local_ref" != refs/heads/g6b/* ]]; then
+    echo "Public push guard only permits controlled G6-B branch updates." >&2; exit 1
+  fi
+  if [[ ! "$remote_sha" =~ ^0+$ ]]; then
+    baseline="$remote_sha"
+  else
+    baseline=${G6B_REVIEWED_BASE_SHA:?Set the exact PCS-reviewed base SHA for a new branch}
+    [[ "$baseline" =~ ^[a-f0-9]{40}$ ]]
+  fi
+  if [[ $(git rev-list --parents -n 1 "$local_sha") != "$local_sha $baseline" ]]; then
+    echo "Public push guard requires one reviewed, direct child of the baseline." >&2; exit 1
+  fi
+  bash scripts/verify-public-tree.sh "$local_sha"
+done

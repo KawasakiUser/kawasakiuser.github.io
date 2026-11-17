@@ -1,6 +1,6 @@
 import type { Locale, RecordBase, RouteHistory, RouteRecord } from './types';
 import { ValidationError } from './errors';
-import { prefixMatchesEntity } from './registry';
+import { isNoteId, prefixMatchesEntity } from './registry';
 
 export function routeFor(record: RecordBase): string | null {
   const prefix = record.locale === 'zh' ? '/zh' : '';
@@ -83,6 +83,16 @@ export function buildRoutes(records: readonly RecordBase[], history: readonly Ro
     add({ path: old.path, permanentId: old.permanentId, locale: old.locale, entity,
       kind: old.currentState === 'Withdrawn' ? 'withdrawn' : 'tombstone', noindex: true });
   }
+  for (const source of records) {
+    if (source.entity !== 'Note' || !isNoteId(source.permanentId) ||
+        source.locale !== source.sourceLocale || source.publicationStatus !== 'Published') continue;
+    const locale = source.locale === 'en' ? 'zh' : 'en';
+    const result = resolveLocale(records, source.permanentId, locale, history);
+    if (result.kind !== 'source-fallback') continue;
+    const path = routeFor({ ...source, locale })!;
+    add({ path, permanentId: source.permanentId, locale, entity: 'Note',
+      kind: 'source-fallback', sourceLocale: source.locale, noindex: true });
+  }
   return [...byPath.values()].sort((a, b) => a.path.localeCompare(b.path));
 }
 
@@ -92,7 +102,7 @@ export function resolveLocale(records: readonly RecordBase[], id: string, reques
   if (target?.publicationStatus === 'Published') return { kind: 'published' as const, record: target };
   if (target?.publicationStatus === 'Withdrawn') return { kind: 'withdrawn' as const, record: target };
   const old = history.find((item) => item.permanentId === id && item.locale === requested);
-  if (old?.currentState === 'Withdrawn') return { kind: 'withdrawn' as const, record: target };
+  if (history.some((item) => item.permanentId === id && item.locale === requested && item.currentState === 'Withdrawn')) return { kind: 'withdrawn' as const, record: target };
   if (target?.previouslyPublished && target.publicationStatus === 'Draft') return { kind: 'tombstone' as const };
   if (old) return { kind: 'tombstone' as const };
   const sourceLocale = records.find((record) => record.permanentId === id)?.sourceLocale;

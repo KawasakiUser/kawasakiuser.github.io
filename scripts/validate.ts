@@ -3,14 +3,18 @@ import { join } from 'node:path';
 import type { RecordBase, RegistryEvent, RouteHistory } from '../src/lib/types';
 import { validateDataset, validateAssets } from '../src/lib/validate';
 import { buildRoutes } from '../src/lib/routes';
+import { validateRepositorySource } from './repo-source';
 import { validatePublicSourceGate } from './public-gate';
 import { getCanonicalEntities, getOutputManifest, getRegistryView, getRouteManifest } from '../src/lib/canonical';
 import { getCompositeOutputScope } from '../src/components/composite/output-scope';
 import { renderScience } from '../src/lib/science-render/render';
+import { scienceOptions, validateSciencePolicy, type SciencePolicy } from '../src/lib/science-render/science-policy';
 
 function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, 'utf8')) as T;
 }
+validateRepositorySource();
+
 const contentDir = 'src/data/public/content';
 const records = readdirSync(contentDir).filter((name) => name.endsWith('.json')).sort().map((name) => readJson<RecordBase>(join(contentDir, name)));
 const registry = readJson<RegistryEvent[]>('src/data/registry.json');
@@ -27,19 +31,16 @@ const registryView = getRegistryView(records, registry);
 const routeManifest = getRouteManifest(records, history);
 const compositeScope = getCompositeOutputScope(routeManifest);
 const outputManifest = getOutputManifest(routeManifest, compositeScope);
-// Fail closed before Astro compilation: validate every approved Notes body via
-// the bounded data-only AST/TeX renderer. Unapproved MDX remains rejected.
+const sciencePolicy = readJson<SciencePolicy>('src/data/manifests/notes-science.json');
+validateSciencePolicy(sciencePolicy, records, assets, outputManifest);
+const getScienceOptions = scienceOptions(sciencePolicy, routeManifest, outputManifest.approvedRoutes);
 for (const record of records) {
   if (record.entity === 'Note' && record.publicationStatus === 'Published') {
-    renderScience(record.body ?? '', {
-      locale: record.locale,
-      assets: {},
-      approvedLinks: new Set(outputManifest.approvedRoutes)
-    });
+    renderScience(record.body ?? '', getScienceOptions(record));
   }
 }
 writeFileSync('artifacts/notes-candidate.json', JSON.stringify({
-  routes: routeManifest, scope: compositeScope, assets: {}, mdxApprovals: {}
+  routes: routeManifest, scope: compositeScope, ...sciencePolicy
 }, null, 2) + '\n');
 writeFileSync('artifacts/route-manifest.json', JSON.stringify({ generatedFrom: 'canonical adapter', routes: routeManifest }, null, 2) + '\n');
 writeFileSync('artifacts/canonical-entities.json', JSON.stringify(canonical, null, 2) + '\n');

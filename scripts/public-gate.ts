@@ -107,8 +107,4 @@ export function validatePublicSourceGate(records: readonly RecordBase[], assets:
   if (declared.size !== approved.size || [...approved.keys()].some((path) => !declared.has(path))) {
     throw new ValidationError('PUBLIC_DECLARATION', 'Asset manifest and approved file inventory differ');
   }
-  // No private authoring content belongs in this public GitHub repository at all.
-  for (const path of ['src/data/private', 'src/private', 'private']) {
-    if (enumerate(resolve(repo, path)).length) throw new ValidationError('PRIVATE_IN_PUBLIC_REPO', 'Private authoring files present in public repository: ' + path);
-  }
 }
