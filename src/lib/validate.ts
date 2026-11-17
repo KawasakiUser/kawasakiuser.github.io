@@ -47,6 +47,9 @@ export function validateDataset(records: readonly RecordBase[], registry: readon
     if (!prefixMatchesEntity(record.entity, record.permanentId, isLegacyNote)) {
       throw new ValidationError('ID_TYPE', 'Wrong ID prefix for ' + record.entity + ': ' + record.permanentId);
     }
+    if (record.entity === 'Note' && record.locale !== 'en' && record.locale !== 'zh') {
+      throw new ValidationError('NOTES_LOCALE', 'Unsupported Note locale: ' + record.permanentId);
+    }
     if (record.entity === 'ArchiveRecord' && record.validityStatus && record.validityStatus !== 'Valid' && record.validityStatus !== 'Withdrawn') {
       throw new ValidationError('WORK_STATUS', 'Unsupported Work validity status: ' + record.permanentId);
     }
@@ -70,9 +73,12 @@ export function validateDataset(records: readonly RecordBase[], registry: readon
     if (slugs.size !== 1) throw new ValidationError('GLOBAL_SLUG', 'Slug differs across locale states: ' + id);
     if (sources.size !== 1) throw new ValidationError('GLOBAL_SOURCE', 'Source locale differs across locale states: ' + id);
     const sourceLocale = variants[0]?.sourceLocale;
-    if (!sourceLocale || !variants.some((record) => record.locale === sourceLocale)) {
-      throw new ValidationError('SOURCE_LOCALE', 'Source locale has no corresponding record: ' + id);
+    if ((sourceLocale !== 'en' && sourceLocale !== 'zh') ||
+        (variants[0]?.entity !== 'Note' && !variants.some((record) => record.locale === sourceLocale))) {
+      throw new ValidationError('SOURCE_LOCALE', 'Invalid source locale or corresponding record missing: ' + id);
     }
+    // A public Note projection may contain just an independently Published translation.
+    // No row for the original is needed, and no fallback can be generated without it.
 
     const globalFields = ['slug', 'sourceLocale', 'primaryType', 'lifecycle', 'archiveKind', 'validityStatus', 'projectIds', 'relations'];
     for (const field of globalFields) {

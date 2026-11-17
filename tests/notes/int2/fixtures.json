@@ -1,0 +1,30 @@
+{
+  "records": [
+    { "id": "NTE-0101", "locale": "en", "sourceLocale": "en", "slug": "synthetic-geometry", "title": "Geometry and wave mechanics", "summary": "Synthetic scientific reading specimen with metric components, Kerr spacetime, and free-particle dispersion.", "body": ["tests/notes/fixtures/geometry-en.md", "tests/notes/int2/quantum-en.md"] },
+    { "id": "NTE-0101", "locale": "zh", "sourceLocale": "en", "slug": "synthetic-geometry", "title": "几何与波动力学", "summary": "用于版式验证的合成科学笔记，包含 Kerr 线元、度规分量和自由粒子色散。", "body": ["tests/notes/fixtures/geometry-zh.md", "tests/notes/int2/quantum-zh.md"] },
+    { "id": "NTE-0102", "locale": "en", "sourceLocale": "en", "slug": "synthetic-components", "title": "Synthetic data-only science components", "summary": "Controlled MDX specimen with figure, citation, equation, and callout.", "body": ["tests/notes/fixtures/components-en.mdx"] },
+    { "id": "NTE-0103", "locale": "en", "sourceLocale": "en", "slug": "synthetic-original", "title": "Synthetic original-language specimen", "summary": "English source for the missing-target case.", "body": ["tests/notes/fixtures/source-en.md"] },
+    { "id": "NTE-0104", "locale": "en", "sourceLocale": "en", "slug": "synthetic-history", "title": "Synthetic current source with historical target", "summary": "English source with formerly published Chinese URLs.", "body": ["tests/notes/fixtures/source-en.md"] },
+    { "id": "NTE-0105", "locale": "en", "sourceLocale": "zh", "slug": "synthetic-withdrawn", "title": "Synthetic independently published English translation", "summary": "Published English translation; historical Chinese source URL withdrawn.", "body": ["tests/notes/int2/translation-en.md"] },
+    { "id": "NTE-0106", "locale": "zh", "sourceLocale": "en", "slug": "synthetic-translated-only", "title": "独立发布的中文合成译文", "summary": "英文原文没有公共记录，中文译文独立发布。", "body": ["tests/notes/int2/translation-zh.md"] }
+  ],
+  "history": [
+    { "id": "NTE-0104", "locale": "zh", "path": "/zh/notes/synthetic-history/", "state": "Tombstone" },
+    { "id": "NTE-0104", "locale": "zh", "path": "/zh/notes/synthetic-history-old/", "state": "Withdrawn" },
+    { "id": "NTE-0105", "locale": "zh", "path": "/zh/notes/synthetic-withdrawn/", "state": "Withdrawn" }
+  ],
+  "scope": {
+    "/notes/synthetic-geometry/": "page",
+    "/zh/notes/synthetic-geometry/": "page",
+    "/notes/synthetic-components/": "page",
+    "/zh/notes/synthetic-components/": "source-fallback",
+    "/notes/synthetic-original/": "page",
+    "/zh/notes/synthetic-original/": "source-fallback",
+    "/notes/synthetic-history/": "page",
+    "/zh/notes/synthetic-history/": "tombstone",
+    "/zh/notes/synthetic-history-old/": "withdrawn",
+    "/notes/synthetic-withdrawn/": "page",
+    "/zh/notes/synthetic-withdrawn/": "withdrawn",
+    "/zh/notes/synthetic-translated-only/": "page"
+  }
+}

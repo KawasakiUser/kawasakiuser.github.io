@@ -21,7 +21,12 @@ if (JSON.stringify(actual) !== JSON.stringify(allowed)) {
 }
 for (const file of actual.filter((name) => name.endsWith('.html'))) {
   const html = readFileSync(resolve(dist, file), 'utf8');
-  if (!/<meta\s+name="robots"\s+content="noindex"\s*\/?\s*>/i.test(html)) throw new Error('Engineering branch output must remain noindex: ' + file);
+  const route = '/' + file.replace(/index\.html$/, '');
+  const fallback = manifest.routeStates.some((entry) => entry.path === route && entry.state === 'source-fallback');
+  const robots = fallback
+    ? /<meta\s+name="robots"\s+content="noindex,follow"\s*\/?\s*>/i
+    : /<meta\s+name="robots"\s+content="noindex"\s*\/?\s*>/i;
+  if (!robots.test(html)) throw new Error('Engineering branch output must remain noindex: ' + file);
   if (/<script\b|\bon[a-z]+\s*=|SECRET_PRIVATE_DRAFT|PRIVATE_CONTENT|publicationStatus["']?:?\s*["']Draft/i.test(html)) {
     throw new Error('Build output contains executable or private content: ' + file);
   }

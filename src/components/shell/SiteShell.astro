@@ -1,9 +1,10 @@
 ---
 interface Props {
   locale: 'en' | 'zh';
+  localePeer?: string;
   notesHref?: string | null;
 }
-const { locale, notesHref = null } = Astro.props;
+const { locale, localePeer } = Astro.props;
 const path = Astro.url.pathname;
 const prefix = locale === 'zh' ? '/zh' : '';
 const peerPrefix = locale === 'zh' ? '' : '/zh';
@@ -14,8 +15,8 @@ const indexPath = (name: string) => prefix + '/' + name + '/';
 const directPeer = path === '/' || path === '/zh/' ||
   (indexSections.has(section) && path.split('/').filter(Boolean).length === (locale === 'zh' ? 2 : 1)) ||
   path.includes('/projects/foundation-fixture/');
-const languageTarget = directPeer ? peerPath : (indexSections.has(section) ? peerPrefix + '/' + section + '/' : peerPrefix + '/');
-const languageFallback = !directPeer && indexSections.has(section);
+const languageTarget = localePeer ?? (directPeer ? peerPath : (indexSections.has(section) ? peerPrefix + '/' + section + '/' : peerPrefix + '/'));
+const languageFallback = !localePeer && !directPeer && indexSections.has(section);
 const isZh = locale === 'zh';
 const labels = isZh
   ? { skip: '跳到主要内容', nav: '主导航', home: '首页', projects: '项目', archive: '档案', notes: '笔记', about: '关于', switch: 'English', switchHref: languageTarget, footer: '页脚导航' }

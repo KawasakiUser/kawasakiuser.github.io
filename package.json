@@ -17,7 +17,8 @@
     "verify:delivery": "node --import tsx scripts/verify-delivery-manifest.ts",
     "prebuild": "npm run validate",
     "test:notes:candidate": "node tests/notes/lab.mjs build && node tests/notes/audit.mjs && node tests/notes/lab.mjs negative",
-    "test:notes:renderers": "node --import tsx tests/notes/compare.mjs"
+    "test:notes:renderers": "node --import tsx tests/notes/compare.mjs",
+    "test:notes:int2": "node tests/notes/int2/lab.mjs"
   },
   "dependencies": {
     "astro": "5.18.2",
