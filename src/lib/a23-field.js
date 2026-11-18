@@ -30,6 +30,7 @@ function mountA23(root) {
   const ctx=canvas.getContext('2d');
   if (!ctx) return;
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+  const forced=window.matchMedia('(forced-colors: active)');
   let seed=37, streams=[], frame=0, running=false, inView=true, width=1, height=1;
   const rand=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
   function setup() {
@@ -84,7 +85,7 @@ function mountA23(root) {
     ctx.clearRect(0,0,width,height);
   }
   function sync() {
-    if(document.hidden||reduced.matches||!inView||!root.isConnected){stop();return}
+    if(document.hidden||reduced.matches||forced.matches||!inView||!root.isConnected){stop();return}
     if(running)return;
     setup();running=true;frame=window.requestAnimationFrame(draw);
   }
@@ -100,11 +101,13 @@ function mountA23(root) {
   if(ro)ro.observe(root);
   else window.addEventListener('resize',resize,{passive:true});
   reduced.addEventListener('change',sync);
+  forced.addEventListener('change',sync);
   document.addEventListener('visibilitychange',sync);
   const dispose=()=>{
     stop();io?.disconnect();ro?.disconnect();
     if(!ro)window.removeEventListener('resize',resize);
     reduced.removeEventListener('change',sync);
+    forced.removeEventListener('change',sync);
     document.removeEventListener('visibilitychange',sync);
     document.removeEventListener('astro:before-swap',dispose);
   };
