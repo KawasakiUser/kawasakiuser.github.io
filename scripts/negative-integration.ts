@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -214,5 +214,52 @@ try {
     assert.ok(result.text.includes('OUTPUT_URL'), result.text);
     console.log('PASS QA-INT2-05 actual scanner negative: ' + name);
   }
+
+  // SEC-A23-01: confirm the actual scanner rejects tampering with the ONE
+  // external module that is otherwise permitted on noindex Home.
+  // The expected path and digest are pinned to an independently reviewed
+  // build artifact in scan-build.ts (never generated from unchecked dist).
+  writeFileSync(out, original);
+  const zhOut = join(scannerControl, 'dist/zh/index.html');
+  const zhOriginal = readFileSync(zhOut, 'utf8');
+  const bundleDir = join(scannerControl, 'dist/_astro');
+  const bundleName = readdirSync(bundleDir).find((name) =>
+    /^A23Cover\.astro_astro_type_script_index_0_lang\.[A-Za-z0-9_-]{8}\.js$/.test(name));
+  assert.ok(bundleName, 'expected exactly one A23 build artifact for security negative controls');
+  const bundlePath = join(bundleDir, bundleName);
+  const approvedBytes = readFileSync(bundlePath);
+
+  // A same-filename JS substitution must fail by trusted binary digest.
+  try {
+    writeFileSync(bundlePath, 'const NOT_REVIEWED_A23 = ' + JSON.stringify('x'.repeat(1200)) + ';');
+    const replaced = run(scannerControl, 'scan:build');
+    assert.notEqual(replaced.status, 0, 'SEC-A23-01 same-path replaced JS falsely accepted');
+    assert.ok(replaced.text.includes('A23_MODULE_INTEGRITY'), replaced.text);
+    console.log('PASS SEC-A23-01 same-path modified JavaScript is rejected by real scanner');
+  } finally {
+    writeFileSync(bundlePath, approvedBytes);
+  }
+
+  // A forged regex-shaped name, even with original bytes and coordinated
+  // changes to BOTH Home script URLs, cannot self-authorize.
+  const forgedName = 'A23Cover.astro_astro_type_script_index_0_lang.QA987654.js';
+  assert.notEqual(bundleName, forgedName);
+  const forgedPath = join(bundleDir, forgedName);
+  renameSync(bundlePath, forgedPath);
+  try {
+    writeFileSync(out, original.replaceAll(bundleName, forgedName));
+    writeFileSync(zhOut, zhOriginal.replaceAll(bundleName, forgedName));
+    const forged = run(scannerControl, 'scan:build');
+    assert.notEqual(forged.status, 0, 'SEC-A23-01 forged-pattern module falsely accepted');
+    assert.ok(forged.text.includes('A23_MODULE_IDENTITY'), forged.text);
+    console.log('PASS SEC-A23-01 forged pattern module and Home refs rejected by real scanner');
+  } finally {
+    renameSync(forgedPath, bundlePath);
+    writeFileSync(out, original);
+    writeFileSync(zhOut, zhOriginal);
+  }
+  const restored = run(scannerControl, 'scan:build');
+  assert.equal(restored.status, 0, 'SEC-A23-01 approved clean artifact failed after negative restoration\n' + restored.text);
+  console.log('PASS SEC-A23-01 clean approved A23 artifact after negatives');
 } finally { rmSync(scannerControl, { recursive: true, force: true }); }
 console.log('PASS all real-input CLI negative integration cases');
