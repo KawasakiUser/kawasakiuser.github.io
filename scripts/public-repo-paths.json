@@ -104,6 +104,7 @@
   "src/pages/zh/projects/[slug].astro": null,
   "src/pages/zh/projects/index.astro": null,
   "TEST_RESULTS.csv": "a9c3ab86ab3cb6d057e9426be54c7c75e2820fa9ff9a63862ae245f1997fbc39",
+  "tests/a23-cover.test.ts": null,
   "tests/about-views.test.ts": null,
   "tests/about/activation.patch": "dee25374bc8dfcac52326b383ab5dd77689540a1a236e2a71d55e7f2745b0f4f",
   "tests/about/README.md": "d9423b65b175d9e00703084d2b62a14b5dca17827870e15965ead47b009a4188",
