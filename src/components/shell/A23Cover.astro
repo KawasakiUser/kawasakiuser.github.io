@@ -1,0 +1,151 @@
+---
+interface Props { locale: 'en' | 'zh'; }
+const { locale } = Astro.props;
+const isZh = locale === 'zh';
+const headline = isZh
+  ? '创造那些经得起时间考验，依然有用的，价值'
+  : 'Build the work that remains useful.';
+const label = isZh ? '01 / 封面' : '01 / COVER';
+// Non-H1 zh strings remain EDITORIAL review candidates; do not remove noindex on these routes.
+const copy = isZh
+  ? {
+      role: '战略项目发起者 · 系统建设者',
+      research: '理论物理研究者',
+      kicker: '多语言项目档案',
+      description: '项目、研究、写作，以及不断成长的记录。',
+      location: '位于中国上海 · 理论物理学硕士',
+      signature: 'ShiJie Wang / 自适应文字场',
+    }
+  : {
+      role: 'Strategic Project Initiator · Systems Builder',
+      research: 'Researcher in Theoretical Physics',
+      kicker: 'A multilingual project archive',
+      description: 'Projects, research, writing, and the record of becoming.',
+      location: 'Based in Shanghai, China · M.S. in Theoretical Physics',
+      signature: 'ShiJie Wang / Adaptive Typographic Field',
+    };
+---
+<section id="cover" class="a23-cover" aria-labelledby="cover-heading" data-a23-cover data-copy-status={isZh ? 'zh-non-h1-candidate' : 'en-source'}>
+  <canvas class="a23-field" data-a23-field aria-hidden="true"></canvas>
+  <div class="a23-wash" aria-hidden="true"></div>
+  <div class="a23-body">
+    <p class="a23-role">{copy.role}<span>{copy.research}</span></p>
+    <p class="a23-kicker">{copy.kicker}</p>
+    <h1 id="cover-heading" class={isZh ? 'a23-title a23-title-zh' : 'a23-title a23-title-en'} aria-label={headline}>
+      {isZh ? (
+        <>
+          <span>创造那些经得起时间考验，</span>
+          <span>依然有用的，</span>
+          <span class="a23-accent">价值</span>
+        </>
+      ) : (
+        <>
+          <span>Build the work</span>
+          <span>that remains</span>
+          <span class="a23-accent">useful.</span>
+        </>
+      )}
+    </h1>
+    <div class="a23-meta">
+      <b>{copy.description}</b>
+      <small>{copy.location}</small>
+    </div>
+  </div>
+  <div class="a23-bottom" aria-label={isZh ? '封面署名' : 'Cover signature'}>
+    <span>{copy.signature}</span>
+    <span class="a23-index">{label}</span>
+  </div>
+</section>
+
+<script>
+  import '../../lib/a23-field.js';
+</script>
+
+<style>
+  .a23-cover {
+    --a23-paper: #f7f4ed;
+    --a23-ink: #111;
+    --a23-red: #a32626;
+    background: var(--a23-paper);
+    color: var(--a23-ink);
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    min-height: calc(100svh - 5rem);
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    padding: 1.7rem 5vw 1.875rem;
+    font-family: "Times New Roman", "Songti SC", SimSun, serif;
+  }
+  .a23-field { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+  .a23-wash {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(ellipse at 34% 53%,rgba(247,244,237,.93) 0 13%,rgba(247,244,237,.78) 31%,rgba(247,244,237,.26) 55%,rgba(247,244,237,.04) 78%);
+  }
+  .a23-body, .a23-bottom { position: relative; z-index: 2; }
+  .a23-body { align-self: center; max-width: 70rem; width: 100%; padding: 2.375rem .5rem; }
+  .a23-body::before {
+    content: ""; position: absolute; z-index: -1; left: -10%; top: 4%; width: 76%; height: 92%;
+    background: radial-gradient(ellipse at 34% 48%,rgba(247,244,237,.9) 0%,rgba(247,244,237,.62) 44%,rgba(247,244,237,0) 76%);
+    filter: blur(3px); pointer-events: none;
+  }
+  .a23-role { margin: 0 0 1.15rem; font-size: .92rem; font-weight: 600; line-height: 1.45; max-width: 44rem; color: #41413d; }
+  .a23-role span { display: block; }
+  .a23-kicker {
+    display: table; font-size: .875rem; letter-spacing: .14em; text-transform: uppercase;
+    color: #765217; background: #f7f4ed; padding: .2rem .28rem;
+    margin: 0 0 1.5625rem; line-height: 1.4;
+  }
+  .a23-title {
+    line-height: .90; letter-spacing: -.063em; margin: 0 0 2.125rem;
+    max-width: 70rem; font-weight: 800; text-shadow: 0 2px 1px rgba(247,244,237,.72);
+    overflow-wrap: anywhere; min-width: 0;
+  }
+  .a23-title span { display: block; }
+  .a23-title-en { font-size: clamp(2.5rem, 8.4vw, 9rem); }
+  .a23-title-zh {
+    font-size: clamp(1.25rem, 5.55vw, 5.5rem);
+    letter-spacing: -.045em; line-height: 1.03;
+  }
+  .a23-accent { color: var(--a23-red); }
+  .a23-meta {
+    border-top: 3px solid var(--a23-ink);
+    padding-top: 1.125rem; max-width: 33.75rem; font-size: 1.25rem; font-weight: 600;
+    text-shadow: 0 1px 1px rgba(247,244,237,.7); line-height: 1.45;
+  }
+  .a23-meta b { display: block; font-size: 1.5rem; font-weight: 800; letter-spacing: .01em; margin-bottom: .5rem; }
+  .a23-meta small { display: block; font-size: 1.0625rem; font-weight: 800; color: #57544f; letter-spacing: .01em; }
+  .a23-bottom {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+    border-top: 2px solid rgba(17,17,17,.38); padding: .9375rem 1.125rem 1.5rem;
+    color: var(--a23-ink); font-size: 1.125rem; font-weight: 800; letter-spacing: .06em;
+    text-shadow: 0 1px 1px rgba(247,244,237,.8);
+    background: var(--a23-paper);
+  }
+  .a23-index { font-size: 1.125rem; letter-spacing: .1em; color: #765217; }
+  @media (max-width: 800px) {
+    .a23-cover { padding: 1.25rem 6vw 1.5rem; }
+    .a23-body { padding: 1.75rem 0; }
+    .a23-body::before { left: -15%; width: 110%; height: 100%; }
+    .a23-wash { background: radial-gradient(ellipse at 40% 45%,rgba(247,244,237,.91) 0 17%,rgba(247,244,237,.76) 42%,rgba(247,244,237,.14) 80%); }
+    .a23-meta b { font-size: 1.15rem; }
+    .a23-meta small { font-size: .9rem; }
+    .a23-bottom { font-size: .85rem; padding-inline: .5rem; }
+    .a23-title-en { font-size: clamp(2.5rem, 9vw, 5.5rem); }
+  }
+  @media (max-width: 600px) {
+    .a23-index { display: none; }
+    .a23-role { font-size: .8rem; }
+    .a23-kicker { font-size: .8rem; letter-spacing: .09em; }
+    .a23-meta { font-size: 1rem; }
+    .a23-title { margin-bottom: 1.6rem; }
+    .a23-title-zh { font-size: clamp(1.25rem, 5.55vw, 2.25rem); }
+  }
+  @media (prefers-reduced-motion: reduce) { .a23-field { display: none; } }
+  @media (forced-colors: active) {
+    .a23-cover, .a23-kicker, .a23-bottom { background: Canvas; color: CanvasText; }
+    .a23-field, .a23-wash { display: none; }
+    .a23-accent, .a23-index { color: CanvasText; }
+    .a23-meta, .a23-bottom { border-color: CanvasText; }
+  }
+</style>
