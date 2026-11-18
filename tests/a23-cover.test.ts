@@ -25,6 +25,7 @@ test('A23 Owner latest Chinese title and exact red scope are preserved', () => {
 test('A23 field retains all 4 original languages and lifecycle suppression', () => {
   for (const lang of ["lang:'en'", "lang:'zh'", "lang:'jp'", "lang:'ru'"]) assert.ok(motion.includes(lang), lang);
   assert.match(motion, /prefers-reduced-motion: reduce/);
+  assert.match(motion, /forced-colors: active/);
   assert.match(motion, /visibilitychange/);
   assert.match(motion, /IntersectionObserver/);
   assert.match(motion, /cancelAnimationFrame/);
