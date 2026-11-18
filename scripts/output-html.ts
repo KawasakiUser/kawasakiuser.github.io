@@ -7,7 +7,7 @@ const urlAttributes = new Set([
 ]);
 const urlLists = new Set(['ping', 'archive', 'itemtype']);
 const sourceSets = new Set(['srcset', 'imagesrcset']);
-const blockedElements = new Set(['script', 'base', 'iframe', 'frame', 'object', 'embed', 'applet', 'animate', 'animatemotion', 'animatetransform', 'set', 'foreignobject']);
+const blockedElements = new Set(['base', 'iframe', 'frame', 'object', 'embed', 'applet', 'animate', 'animatemotion', 'animatetransform', 'set', 'foreignobject']);
 const base = 'https://kawasakiuser.github.io/';
 
 function safeUrl(raw: string, attribute: string): boolean {
@@ -28,17 +28,31 @@ function safeUrl(raw: string, attribute: string): boolean {
   }
 }
 
-export function validateOutputHtml(html: string, file: string, robots: string): void {
+export function validateOutputHtml(html: string, file: string, robots: string, approvedA23Script?: string): void {
   const executable = () => new Error('Build output contains executable or private content: ' + file);
   if (/SECRET_PRIVATE_DRAFT|PRIVATE_CONTENT|publicationStatus["']?:?\s*["']Draft/i.test(html)) throw executable();
 
   const policies: string[] = [];
+  let a23ScriptCount = 0;
   function visit(nodes: RootContent[], inHead = false): void {
     for (const node of nodes) {
       if (node.type !== 'element') continue;
       const { tagName, properties, children } = node;
       const tag = tagName.toLowerCase();
       if (blockedElements.has(tag)) throw executable();
+      if (tag === 'script') {
+        // A23 is the ONLY executable exception: the deterministic Astro-generated
+        // module, linked once on each noindex Home page. Other scripts remain blocked.
+        const attrs = Object.keys(properties);
+        const safeHome = file === 'index.html' || file === 'zh/index.html';
+        const noInline = children.every((child) => child.type === 'text' && !child.value.trim());
+        if (!safeHome || !approvedA23Script || !noInline ||
+            String(properties.src) !== '/' + approvedA23Script ||
+            String(properties.type).toLowerCase() !== 'module' ||
+            attrs.some((attr) => attr !== 'src' && attr !== 'type') ||
+            ++a23ScriptCount > 1) throw executable();
+        continue;
+      }
       if (tag === 'meta') {
         if (String(properties.httpEquiv).trim().toLowerCase() === 'refresh') throw executable();
         if (String(properties.name).trim().toLowerCase() === 'robots') {
@@ -66,6 +80,9 @@ export function validateOutputHtml(html: string, file: string, robots: string): 
     }
   }
   visit(fromHtml(html).children);
+  if (approvedA23Script && (file === 'index.html' || file === 'zh/index.html') && a23ScriptCount !== 1) {
+    throw executable();
+  }
   if (policies.length !== 1 || policies[0] !== robots) {
     throw new Error('Engineering branch output must remain noindex: ' + file);
   }
